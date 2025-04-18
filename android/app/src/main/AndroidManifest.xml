@@ -8,7 +8,7 @@
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
 
     <application
-        android:label="ygc_reports"
+        android:label="YGC Reports"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

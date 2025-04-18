@@ -1,4 +1,4 @@
-package com.example.ygc_reports
+package com.amtcode.ygc_reports
 
 import io.flutter.embedding.android.FlutterActivity
 

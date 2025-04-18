@@ -8,7 +8,7 @@
 PRODUCT_NAME = ygc_reports
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.example.ygcReports
+PRODUCT_BUNDLE_IDENTIFIER = com.amtcode.ygcReports
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2025 com.example. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2025 com.amtcode. All rights reserved.

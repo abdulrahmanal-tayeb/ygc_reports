@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:ygc_reports/config/router/app_router.dart';
 import 'package:ygc_reports/config/theme/dark_theme.dart';
 import 'package:ygc_reports/config/theme/light_theme.dart';
+import 'package:ygc_reports/providers/ygc_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,6 +15,7 @@ void main() async {
       runApp(
         MultiProvider(
           providers: [
+            ChangeNotifierProvider(create: (_) => YgcProvider())
           ],
           child: const YGCReports(),
         ),

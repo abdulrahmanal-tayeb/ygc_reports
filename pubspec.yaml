@@ -42,6 +42,7 @@ dependencies:
   go_router: ^15.0.0
   permission_handler: ^12.0.0+1
   provider: ^6.1.4
+  pdf_image_renderer: ^1.0.1
 
 dev_dependencies:
   flutter_test:
@@ -67,9 +68,9 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/docs/template.pdf
+    - assets/docs/template.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

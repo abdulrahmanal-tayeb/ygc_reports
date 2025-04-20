@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:ygc_reports/models/report_model.dart';
 import "package:ygc_reports/core/utils/formatters.dart";
@@ -370,15 +371,16 @@ class ReportPrinter {
         ),
       ),
 
-      if(false)
+      if(data.workerSignature != null)
         pw.Positioned(
           right: stationEmployeeX + 10,
           top: y + spacing,
           child: pw.Container(
             width: 100,
             height: 50,
-            child: pw.Center(
-              child: arabicText("Workers Signature"), // or any function that returns pw.Text
+            child: pw.Image(
+              pw.MemoryImage(data.workerSignature!),
+              fit: pw.BoxFit.contain
             ),
           ),
         ),
@@ -394,15 +396,19 @@ class ReportPrinter {
         ),
       ),
 
-      if(false)
+      if(data.representativeSignature != null)
         pw.Positioned(
           left: companyEmployeeX + 17,
           top: y + spacing,
           child: pw.Container(
             width: 100,
             height: 50,
-            child: pw.Center(
-              child: arabicText("Representative Signature"), // or any function that returns pw.Text
+            child: pw.Align(
+              alignment: pw.Alignment.centerRight,
+              child: pw.Image(
+                pw.MemoryImage(data.representativeSignature!),
+                fit: pw.BoxFit.contain
+              ),
             ),
           ),
         )

@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
@@ -6,6 +8,7 @@ import 'package:ygc_reports/core/constants/report_type.dart';
 import 'package:ygc_reports/core/utils/validators.dart';
 import 'package:ygc_reports/features/creation/presentation/utils/utils.dart';
 import 'package:ygc_reports/modals/share_type_sheet/share_type_sheet.dart';
+import 'package:ygc_reports/modals/signature_pad/signature_pad.dart';
 import 'package:ygc_reports/models/report_model.dart';
 import 'package:ygc_reports/providers/report_provider.dart';
 import 'package:ygc_reports/widgets/collapsable.dart';
@@ -63,9 +66,9 @@ class _CreateReportFormState extends State<CreateReportForm> {
   }
 
 
-  void updateDependantFields(ReportProvider provider) {
+  ReportModel? updateDependantFields(ReportProvider provider) {
     final ReportModel model = provider.model;
-    if(model.pumpsReadings == null) return;
+    model.pumpsReadings = pumpRows;
     model.totalConsumed = model.pumpsReadings!.fold(0, (int sum, Map<String, int> reading) => sum + reading["total"]!);
     debugPrint("MODEL TOTAL BROOOOOOOOOOOOO: ${model.totalConsumed}");
     model.remainingLoad = model.totalLoad - model.totalConsumed;
@@ -73,6 +76,20 @@ class _CreateReportFormState extends State<CreateReportForm> {
       model.overflow = model.totalConsumed - model.totalLoad;
     }
     provider.notify();
+    return model;
+  }
+
+  void _generateReport(ReportProvider provider) async {
+    if(pumpRows.isEmpty) return;
+    final recentModel = updateDependantFields(provider);
+    if(recentModel == null){
+      return;
+    }
+
+    showShareTypeBottomSheet(
+      context: context,
+      onSelected: (ReportType selectedType) async => await generateReport(model: recentModel, shareType: selectedType),
+    );
   }
 
   @override
@@ -126,7 +143,6 @@ class _CreateReportFormState extends State<CreateReportForm> {
               )),
             ],
           ),
-
           buildSection(
             title: 'Station Status',
             children: [
@@ -222,35 +238,77 @@ class _CreateReportFormState extends State<CreateReportForm> {
           buildSection(
             title: 'Workers',
             children: [
-              _spaced(TextFormField(
-                decoration: const InputDecoration(labelText: 'Station Worker Name'),
-                initialValue: model.workerName,
-                onChanged: (v) => provider.setField('workerName', v),
-              )),
-              _spaced(TextFormField(
-                decoration: const InputDecoration(labelText: 'YGC Representative Name'),
-                initialValue: model.representativeName,
-                onChanged: (v) => provider.setField('representativeName', v),
-              )),
-              const SizedBox(height: 10),
-              const Placeholder(fallbackHeight: 60),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: buildSection(
+                  title: "Station Worker",
+                  children: [
+                    _spaced(TextFormField(
+                      decoration: const InputDecoration(labelText: 'Station Worker Name'),
+                      initialValue: model.workerName,
+                      onChanged: (v) => provider.setField('workerName', v),
+                    )),
+                    _buildSignature("worker", provider)
+                  ]
+                ),
+              ),
+              const SizedBox(height: 5),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: buildSection(
+                  title: "YGC Representative", 
+                  children: [
+                    _spaced(TextFormField(
+                      decoration: const InputDecoration(labelText: 'YGC Representative Name'),
+                      initialValue: model.representativeName,
+                      onChanged: (v) => provider.setField('representativeName', v),
+                    )),
+
+                    _buildSignature("representative", provider)
+                  ]
+                )
+              )
+              
             ],
           ),
           const SizedBox(height: 30),
           ElevatedButton(
-            onPressed: () async {
-              if(pumpRows.isEmpty) return;
-              updateDependantFields(provider);
-              model.pumpsReadings = pumpRows;
-              showShareTypeBottomSheet(
-                context: context,
-                onSelected: (ReportType selectedType) async => await generateReport(model: model, shareType: selectedType),
-              );
-            }, 
+            onPressed: () => _generateReport(provider), 
             child: const Text("Create")
           )
         ],
       ),
+    );
+  }
+
+  Widget _buildSignature(String employee, ReportProvider provider){
+    final ReportModel model = provider.model;
+    final Uint8List? signature = employee == "worker"? model.workerSignature : model.representativeSignature;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if(signature != null)
+          SizedBox(
+            width: 200,
+            height: 100,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.memory(signature),
+              ),
+            )
+          ),
+          const SizedBox(height: 10,),
+          ElevatedButton(
+            onPressed: () async {
+              final signature = await showSignaturePad(context);
+              provider.setField("${employee}Signature", signature);
+            }, 
+            child: const Text("Sign")
+          )
+      ],
     );
   }
 

@@ -56,6 +56,12 @@ class ReportProvider extends ChangeNotifier {
       case 'representativeName':
         model.representativeName = value;
         break;
+      case 'representativeSignature':
+        model.representativeSignature = value;
+        break;
+      case 'workerSignature':
+        model.workerSignature = value;
+        break;
     }
 
     if(notify){

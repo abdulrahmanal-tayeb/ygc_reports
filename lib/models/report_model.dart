@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 
 class ReportModel {
@@ -27,6 +29,9 @@ class ReportModel {
   String workerName;
   String representativeName;
 
+  Uint8List? workerSignature;
+  Uint8List? representativeSignature;
+
   ReportModel({
     this.stationName = '',
     DateTime? date,
@@ -46,6 +51,8 @@ class ReportModel {
     this.filledForBuses = 0,
     this.totalConsumed = 0,
     this.representativeName = '',
+    this.representativeSignature,
+    this.workerSignature
   })  : date = date ?? DateTime.now(),
         beginTime = beginTime ?? const TimeOfDay(hour: 8, minute: 0),
         endTime = endTime ?? const TimeOfDay(hour: 16, minute: 0);

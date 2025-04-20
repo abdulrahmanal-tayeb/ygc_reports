@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:provider/provider.dart';
+import 'package:ygc_reports/core/constants/report_type.dart';
 import 'package:ygc_reports/core/utils/validators.dart';
 import 'package:ygc_reports/features/creation/presentation/utils/utils.dart';
+import 'package:ygc_reports/modals/share_type_sheet/share_type_sheet.dart';
+import 'package:ygc_reports/models/report_model.dart';
 import 'package:ygc_reports/providers/report_provider.dart';
 import 'package:ygc_reports/widgets/collapsable.dart';
+import 'package:ygc_reports/widgets/focus_text_field.dart';
 import 'package:ygc_reports/widgets/time_input_field.dart';
 
 class CreateReportScreen extends StatelessWidget {
@@ -31,15 +35,52 @@ class CreateReportForm extends StatefulWidget {
 
 class _CreateReportFormState extends State<CreateReportForm> {
   final double spaceBetweenInputs = 20;
-  List<Map<String, double>> pumpRows = [
-    {"start": 0.0, "end": 0.0}
+  List<Map<String, int>> pumpRows = [
+    {"start": 0, "end": 0, "total": 0}
   ];
+
+
+  void updateTotalTankLoad(ReportProvider provider){
+    final ReportModel model = provider.model;
+    final totalLoad = model.tankLoad + model.inboundAmount;
+    model.totalLoad = totalLoad;
+    provider.notify();
+  }
+
+  void updateReadingRow(String key, int index, int reading){
+    final Map<String, int> row = pumpRows[index];
+    row[key] = reading;
+    row["total"] = (row["end"] ?? 0) - (row["start"] ?? 0);
+    pumpRows[index] = row;
+    setState((){});
+  }
+
+  void updateNotesReadings(ReportProvider provider){
+    final ReportModel model = provider.model;
+    model.tanksForPeople = (model.filledForPeople / 20).round();
+    model.filledForBuses = model.totalConsumed - model.filledForPeople;
+    provider.notify();
+  }
+
+
+  void updateDependantFields(ReportProvider provider) {
+    final ReportModel model = provider.model;
+    if(model.pumpsReadings == null) return;
+    model.totalConsumed = model.pumpsReadings!.fold(0, (int sum, Map<String, int> reading) => sum + reading["total"]!);
+    debugPrint("MODEL TOTAL BROOOOOOOOOOOOO: ${model.totalConsumed}");
+    model.remainingLoad = model.totalLoad - model.totalConsumed;
+    if(model.totalConsumed > model.totalLoad){
+      model.overflow = model.totalConsumed - model.totalLoad;
+    }
+    provider.notify();
+  }
 
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<ReportProvider>(context);
     final model = provider.model;
 
+    debugPrint("MOOOOOOOOOOOOOOOOOOOOOOOOOOOdEL: ${provider.model.totalLoad}");
     return Form(
       child: ListView(
         padding: const EdgeInsets.all(16),
@@ -89,53 +130,66 @@ class _CreateReportFormState extends State<CreateReportForm> {
           buildSection(
             title: 'Station Status',
             children: [
-              _spaced(buildNumberField(context, 'Start Liters', model.startLiters, 'startLiters')),
-              _spaced(buildNumberField(context, 'End Liters', model.endLiters, 'endLiters')),
-              _spaced(buildNumberField(context, 'Total Consumed', model.totalConsumed, 'totalConsumed')),
+              _spaced(buildNumberField(context, 'Tank Load', model.tankLoad, 'tankLoad', calculateDependent: () => updateTotalTankLoad(provider))),
+              _spaced(buildNumberField(context, 'Inbound Amount', model.inboundAmount, 'inboundAmount', calculateDependent: () => updateTotalTankLoad(provider))),
+              _spaced(buildNumberField(context, 'Total Load', model.totalLoad, 'totalLoad', enabled: false)),
             ],
           ),
+
           buildSection(
             title: 'Pump Readings',
             children: [
               ...List.generate(pumpRows.length, (index) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Row(
+                  child: Column(
+                    spacing: 5,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: TextFormField(
-                          decoration: const InputDecoration(labelText: 'Start Liters'),
-                          initialValue: pumpRows[index]["start"].toString(),
-                          keyboardType: TextInputType.number,
-                          onChanged: (val) {
-                            setState(() {
-                              pumpRows[index]["start"] = double.tryParse(val) ?? 0.0;
-                            });
-                          },
-                        ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: FocusTextField(
+                              decoration: const InputDecoration(labelText: 'Start Reading'),
+                              initialValue: pumpRows[index]["start"].toString(),
+                              onDebouncedChanged: (val) {
+                                updateReadingRow("start", index, int.tryParse(val) ?? 0);
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: FocusTextField(
+                              decoration: const InputDecoration(labelText: 'End Reading'),
+                              initialValue: pumpRows[index]["end"].toString(),
+                              onDebouncedChanged: (val) {
+                                updateReadingRow("end", index, int.tryParse(val) ?? 0);
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          if(index != 0)
+                            IconButton(
+                              icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
+                              onPressed: pumpRows.length > 1
+                                  ? () {
+                                      setState(() => pumpRows.removeAt(index));
+                                    }
+                                  : null,
+                            ),
+                        ],
                       ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: TextFormField(
-                          decoration: const InputDecoration(labelText: 'End Liters'),
-                          initialValue: pumpRows[index]["end"].toString(),
-                          keyboardType: TextInputType.number,
-                          onChanged: (val) {
-                            setState(() {
-                              pumpRows[index]["end"] = double.tryParse(val) ?? 0.0;
-                            });
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      IconButton(
-                        icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
-                        onPressed: pumpRows.length > 1
-                            ? () {
-                                setState(() => pumpRows.removeAt(index));
-                              }
-                            : null,
-                      ),
+                      if(pumpRows[index]["total"] != null)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          child: Text(
+                            "Consumed: ${pumpRows[index]["total"]}", 
+                            style: TextStyle(
+                              fontSize: 8
+
+                            ),
+                          )
+                        )
                     ],
                   ),
                 );
@@ -143,7 +197,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
               TextButton.icon(
                 onPressed: () {
                   setState(() {
-                    pumpRows.add({"start": 0.0, "end": 0.0});
+                    pumpRows.add({"start": 0, "end": 0, "total": 0});
                   });
                 },
                 icon: const Icon(Icons.add),
@@ -155,12 +209,12 @@ class _CreateReportFormState extends State<CreateReportForm> {
           buildSection(
             title: 'Notes',
             children: [
-              _spaced(buildNumberField(context, 'Filled for People (L)', model.filledForPeople, 'filledForPeople')),
-              _spaced(TextFormField(
+              _spaced(buildNumberField(context, 'Filled for People (L)', model.filledForPeople, 'filledForPeople', calculateDependent: () => updateNotesReadings(provider))),
+              _spaced(FocusTextField(
                 decoration: const InputDecoration(labelText: 'Notes'),
                 initialValue: model.notes,
                 maxLines: 3,
-                onChanged: (v) => provider.setField('notes', v),
+                onDebouncedChanged: (v) => provider.setField('notes', v),
               )),
             ],
           ),
@@ -184,9 +238,15 @@ class _CreateReportFormState extends State<CreateReportForm> {
           ),
           const SizedBox(height: 30),
           ElevatedButton(
-            onPressed: () async => await Printing.layoutPdf(
-              onLayout: (PdfPageFormat format) => generateReportPdf(stationName: model.stationName, startTime: model.beginTime.toString(), endTime: model.endTime.toString(), pumpRows: pumpRows, filledForPeople: model.filledForPeople, notes: model.notes),
-            ), 
+            onPressed: () async {
+              if(pumpRows.isEmpty) return;
+              updateDependantFields(provider);
+              model.pumpsReadings = pumpRows;
+              showShareTypeBottomSheet(
+                context: context,
+                onSelected: (ReportType selectedType) async => await generateReport(model: model, shareType: selectedType),
+              );
+            }, 
             child: const Text("Create")
           )
         ],
@@ -206,14 +266,20 @@ class _CreateReportFormState extends State<CreateReportForm> {
     );
   }
 
-  Widget buildNumberField(BuildContext context, String label, double value, String fieldName) {
+  Widget buildNumberField(BuildContext context, String label, int value, String fieldName, {void Function()? calculateDependent, bool enabled = true}) {
     final provider = Provider.of<ReportProvider>(context, listen: false);
-    return TextFormField(
+    return FocusTextField(
       decoration: InputDecoration(labelText: label),
       initialValue: value.toString(),
       keyboardType: TextInputType.number,
-      onChanged: (val) => provider.setField(fieldName, double.tryParse(val) ?? 0),
+      onDebouncedChanged: (val){
+        debugPrint("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+        provider.setField(fieldName, int.tryParse(val) ?? 0);
+        calculateDependent?.call();
+      },
       validator: (val) => Validators.positiveNumber(val, label),
+      onBlur: calculateDependent,
+      enabled: enabled,
     );
   }
 

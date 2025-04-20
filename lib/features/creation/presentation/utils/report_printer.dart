@@ -2,13 +2,15 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/widgets.dart' as pw;
-import 'package:pdf/pdf.dart';
+import 'package:ygc_reports/models/report_model.dart';
+import "package:ygc_reports/core/utils/formatters.dart";
 
 class ReportPrinter {
   final pw.Font font;
-
+  final ReportModel data;
   ReportPrinter({
-    required this.font
+    required this.font,
+    required this.data
   });
 
   List<pw.Widget> buildReport(){
@@ -46,7 +48,7 @@ class ReportPrinter {
         top: y,
         child: pw.Container(
           width: 20,
-          child: pw.Center(child: arabicText("12"))
+          child: pw.Center(child: arabicText(data.date.day.toString()))
         )
       ),
 
@@ -56,7 +58,7 @@ class ReportPrinter {
         top: y,
         child: pw.Container(
           width: 20,
-          child: pw.Center(child: arabicText("12"))
+          child: pw.Center(child: arabicText(data.date.month.toString()))
         )
       ),
 
@@ -66,12 +68,11 @@ class ReportPrinter {
         top: y,
         child: pw.Container(
           width: 27,
-          child: pw.Center(child: arabicText("1222"))
+          child: pw.Center(child: arabicText(data.date.year.toString()))
         )
       )
     ];
   }
-
 
   List<pw.Widget> _metaData(){
     final double y = 126;
@@ -99,7 +100,7 @@ class ReportPrinter {
                       font: font,
                       fontWeight: pw.FontWeight.bold,
                     ),
-                    text: "طوفان الاقصى النموذجية "
+                    text: "${data.stationName} "
                   ),
                   pw.TextSpan(
                     style: style,
@@ -110,7 +111,7 @@ class ReportPrinter {
                       font: font,
                       fontWeight: pw.FontWeight.bold,
                     ),
-                    text: "الخميس "
+                    text: "${getDayName(data.date)} "
                   ),
                   pw.TextSpan(
                     style: style,
@@ -121,7 +122,7 @@ class ReportPrinter {
                       font: font,
                       fontWeight: pw.FontWeight.bold,
                     ),
-                    text: "2025 / 12 / 12 "
+                    text: "${formatDate(data.date)} "
                   ),
                 ]
               )
@@ -140,7 +141,7 @@ class ReportPrinter {
         top: y,
         child: pw.Container(
           width: 100,
-          child: pw.Center(child: arabicText("8 مساء"))
+          child: pw.Center(child: arabicText(formatTimeOfDay(data.beginTime)))
         )
       ),
 
@@ -149,7 +150,7 @@ class ReportPrinter {
         top: y,
         child: pw.Container(
           width: 100,
-          child: pw.Center(child: arabicText("8 مساء"))
+          child: pw.Center(child: arabicText(formatTimeOfDay(data.endTime)))
         )
       )
     ];
@@ -165,7 +166,7 @@ class ReportPrinter {
         top: y,
         child: pw.Container(
           width: 127,
-          child: pw.Center(child: arabicText("123"))
+          child: pw.Center(child: arabicText(data.tankLoad.toString()))
         )
       ),
       pw.Positioned(
@@ -173,7 +174,7 @@ class ReportPrinter {
         top: y + spacing,
         child: pw.Container(
           width: 125,
-          child: pw.Center(child: arabicText("111111111111111"))
+          child: pw.Center(child: arabicText(data.inboundAmount.toString()))
         )
       ),
       pw.Positioned(
@@ -181,7 +182,7 @@ class ReportPrinter {
         top: y + (spacing * 2),
         child: pw.Container(
           width: 125,
-          child: pw.Center(child: arabicText("111111111111111"))
+          child: pw.Center(child: arabicText(data.totalLoad.toString()))
         )
       )
     ];
@@ -190,12 +191,11 @@ class ReportPrinter {
   List<pw.Widget> _pumpReads() {
     final double y = 318;
     final double spacing = 13;
-    final List<String> liters = ['111', '222', '333', '444', '555', '666', '777', '888'];
-
+    debugPrint("+++++++++++++++++++++++++++++++++++++++++++ ${data.totalConsumed}");
     return [
-      ...liters.asMap().entries.map((entry) {
+      ...data.pumpsReadings!.asMap().entries.map((entry) {
         final index = entry.key;
-        final liter = entry.value;
+        final readings = entry.value;
 
         return pw.Stack(
           children: [
@@ -206,7 +206,7 @@ class ReportPrinter {
                 width: 123,
                 height: 15,
                 child: pw.Center(
-                  child: arabicText(liter), // or any function that returns pw.Text
+                  child: arabicText((readings["start"] ?? 0).toString()), // or any function that returns pw.Text
                 ),
               ),
             ),
@@ -217,7 +217,7 @@ class ReportPrinter {
                 width: 122,
                 height: 15,
                 child: pw.Center(
-                  child: arabicText(liter), // or any function that returns pw.Text
+                  child: arabicText((readings["end"] ?? 0).toString()), // or any function that returns pw.Text
                 ),
               ),
             ),
@@ -228,7 +228,7 @@ class ReportPrinter {
                 width: 92,
                 height: 15,
                 child: pw.Center(
-                  child: arabicText(liter), // or any function that returns pw.Text
+                  child: arabicText((readings["total"] ?? ((readings["start"] ?? 0) + (readings["end"] ?? 0))).toString()), // or any function that returns pw.Text
                 ),
               ),
             )
@@ -243,7 +243,7 @@ class ReportPrinter {
           width: 92,
           height: 15,
           child: pw.Center(
-            child: arabicText("11111111111"), // or any function that returns pw.Text
+            child: arabicText(data.totalConsumed.toString()), // or any function that returns pw.Text
           ),
         ),
       )
@@ -262,39 +262,43 @@ class ReportPrinter {
           width: 120,
           height: 15,
           child: pw.Center(
-            child: arabicText("11111111111"), // or any function that returns pw.Text
+            child: arabicText((data.remainingLoad).toString()), // or any function that returns pw.Text
           ),
         ),
       ),
 
-      pw.Positioned(
-        left: 140,
-        top: y + spacing,
-        child: pw.Container(
-          width: 120,
-          height: 15,
-          child: pw.Center(
-            child: arabicText("11111111111"), // or any function that returns pw.Text
+      if(data.overflow > 0)
+        pw.Positioned(
+          left: 140,
+          top: y + spacing,
+          child: pw.Container(
+            width: 120,
+            height: 15,
+            child: pw.Center(
+              child: arabicText(data.overflow.toString()), // or any function that returns pw.Text
+            ),
           ),
-        ),
-      ),
-
-      pw.Positioned(
-        left: 141,
-        top: y + (spacing * 2),
-        child: pw.Container(
-          width: 120,
-          height: 15,
-          child: pw.Center(
-            child: arabicText("11111111111"), // or any function that returns pw.Text
+        )
+      else if(data.underflow > 0)
+        pw.Positioned(
+          left: 141,
+          top: y + (spacing * 2),
+          child: pw.Container(
+            width: 120,
+            height: 15,
+            child: pw.Center(
+              child: arabicText(data.underflow.toString()), // or any function that returns pw.Text
+            ),
           ),
-        ),
-      )
+        )
     ];
   }
 
   List<pw.Widget> _notes(){
     final double y = 565;
+    
+    // Checking this only because all other fields depends on it.
+    if(data.filledForPeople == 0) return [];
 
     return [
       pw.Positioned(
@@ -304,7 +308,7 @@ class ReportPrinter {
           width: 55,
           height: 15,
           child: pw.Center(
-            child: arabicText("11111111111"), // or any function that returns pw.Text
+            child: arabicText(data.tanksForPeople.toString()), // or any function that returns pw.Text
           ),
         ),
       ),
@@ -315,7 +319,7 @@ class ReportPrinter {
           width: 52,
           height: 15,
           child: pw.Center(
-            child: arabicText("11111111111"), // or any function that returns pw.Text
+            child: arabicText(data.filledForPeople.toString()), // or any function that returns pw.Text
           ),
         ),
       ),
@@ -327,23 +331,24 @@ class ReportPrinter {
           width: 55,
           height: 15,
           child: pw.Center(
-            child: arabicText("11111111111"), // or any function that returns pw.Text
+            child: arabicText(data.filledForBuses.toString()), // or any function that returns pw.Text
           ),
         ),
       ),
 
-      pw.Positioned(
-        right: 40,
-        top: y + 43,
-        child: pw.Container(
-          width: 500,
-          height: 80,
-          child: arabicText(
-            "1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111",
-            maxLines: 4
+      if(data.notes.isNotEmpty)
+        pw.Positioned(
+          right: 40,
+          top: y + 43,
+          child: pw.Container(
+            width: 500,
+            height: 80,
+            child: arabicText(
+              data.notes,
+              maxLines: 4
+            ),
           ),
         ),
-      ),
     ];
   }
 
@@ -359,23 +364,24 @@ class ReportPrinter {
         right: stationEmployeeX,
         top: y,
         child: pw.Container(
-          width: 150,
+          width: 300,
           height: 15,
-          child: arabicText("11111111111"),
+          child: arabicText(data.workerName),
         ),
       ),
 
-      pw.Positioned(
-        right: stationEmployeeX + 10,
-        top: y + spacing,
-        child: pw.Container(
-          width: 100,
-          height: 50,
-          child: pw.Center(
-            child: arabicText("11111111111"), // or any function that returns pw.Text
+      if(false)
+        pw.Positioned(
+          right: stationEmployeeX + 10,
+          top: y + spacing,
+          child: pw.Container(
+            width: 100,
+            height: 50,
+            child: pw.Center(
+              child: arabicText("Workers Signature"), // or any function that returns pw.Text
+            ),
           ),
         ),
-      ),
 
       // Company's Employee
       pw.Positioned(
@@ -384,21 +390,22 @@ class ReportPrinter {
         child: pw.Container(
           width: 130,
           height: 15,
-          child: arabicText("11111111111")
+          child: arabicText(data.representativeName)
         ),
       ),
 
-      pw.Positioned(
-        left: companyEmployeeX + 17,
-        top: y + spacing,
-        child: pw.Container(
-          width: 100,
-          height: 50,
-          child: pw.Center(
-            child: arabicText("11111111111"), // or any function that returns pw.Text
+      if(false)
+        pw.Positioned(
+          left: companyEmployeeX + 17,
+          top: y + spacing,
+          child: pw.Container(
+            width: 100,
+            height: 50,
+            child: pw.Center(
+              child: arabicText("Representative Signature"), // or any function that returns pw.Text
+            ),
           ),
-        ),
-      )
+        )
     ];
   }
   

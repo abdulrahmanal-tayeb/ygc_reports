@@ -24,25 +24,16 @@ class ReportProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setField(String field, dynamic value) {
+  void setField(String field, dynamic value, {bool notify = true}) {
     switch (field) {
-      case 'currentLoad':
-        model.currentLoad = value;
+      case 'tankLoad':
+        model.tankLoad = value;
         break;
-      case 'inboundLoad':
-        model.inboundLoad = value;
+      case 'inboundAmount':
+        model.inboundAmount = value;
         break;
       case 'totalLoad':
         model.totalLoad = value;
-        break;
-      case 'startLiters':
-        model.startLiters = value;
-        break;
-      case 'endLiters':
-        model.endLiters = value;
-        break;
-      case 'totalConsumed':
-        model.totalConsumed = value;
         break;
       case 'remainingLoad':
         model.remainingLoad = value;
@@ -66,6 +57,14 @@ class ReportProvider extends ChangeNotifier {
         model.representativeName = value;
         break;
     }
+
+    if(notify){
+      notifyListeners();
+    }
+  }
+
+  void notify(){
+    debugPrint("HELLO +++++++++++++++++++++++++++++++++++++++++++++++++++");
     notifyListeners();
   }
 }

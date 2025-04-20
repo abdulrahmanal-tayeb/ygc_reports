@@ -1,0 +1,4 @@
+enum ReportType {
+  pdf,
+  image
+}

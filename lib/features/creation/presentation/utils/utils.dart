@@ -1,50 +1,136 @@
+import 'dart:io';
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:ygc_reports/core/constants/report_type.dart';
+import 'package:ygc_reports/core/utils/formatters.dart';
 import 'package:ygc_reports/features/creation/presentation/utils/report_printer.dart';
+import 'package:ygc_reports/models/report_model.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:pdf_render/pdf_render.dart' as pdfRender;
 
-Future<Uint8List> generateReportPdf({
-  required String stationName,
-  required String startTime,
-  required String endTime,
-  required List<Map<String, double>> pumpRows,
-  required double filledForPeople,
-  required String notes,
+Future<void> generateReport({
+  required ReportModel model,
+  required ReportType shareType
 }) async {
-  final pdf = pw.Document();
+  if (await Permission.storage.request().isGranted) {
 
-  // Load the background image
-  final imageData = await rootBundle.load('assets/docs/template.png');
-  final image = pw.MemoryImage(imageData.buffer.asUint8List());
+    final pdf = pw.Document();
 
-  // Load Arabic font from assets
-  final fontData = await rootBundle.load('assets/fonts/cairo/Cairo-Regular.ttf');
-  final arabicFont = pw.Font.ttf(fontData);
+    // Load the background image
+    final imageData = await rootBundle.load('assets/docs/template.png');
+    final image = pw.MemoryImage(imageData.buffer.asUint8List());
 
-  final ReportPrinter reportPrinter = ReportPrinter(font: arabicFont);
+    // Load Arabic font from assets
+    final fontData = await rootBundle.load('assets/fonts/cairo/Cairo-Regular.ttf');
+    final arabicFont = pw.Font.ttf(fontData);
+    final ReportPrinter reportPrinter = ReportPrinter(font: arabicFont, data: model);
 
-  pdf.addPage(
-    pw.Page(
-      margin: pw.EdgeInsets.zero,
-      pageFormat: PdfPageFormat.a4,
-      build: (pw.Context context) {
-        return pw.Directionality(
-          textDirection: pw.TextDirection.rtl, 
-          child: pw.Stack(
-            children: [
-              // Image background
-              pw.Positioned.fill(
-                child: pw.Image(image, fit: pw.BoxFit.cover),
-              ),
-              ...reportPrinter.buildReport(),
-              // Your custom overlay
-            ],
-          )
-        );
-      },
-    ),
+    pdf.addPage(
+      pw.Page(
+        margin: pw.EdgeInsets.zero,
+        pageFormat: PdfPageFormat.a4,
+        build: (pw.Context context) {
+          return pw.Directionality(
+            textDirection: pw.TextDirection.rtl, 
+            child: pw.Stack(
+              children: [
+                // Image background
+                pw.Positioned.fill(
+                  child: pw.Image(image, fit: pw.BoxFit.cover),
+                ),
+                ...reportPrinter.buildReport(),
+                // Your custom overlay
+              ],
+            )
+          );
+        },
+      ),
+    );
+
+    final Uint8List pdfBytes = await pdf.save();
+    final Future<void> Function(Uint8List, String, {required ReportModel model}) handlingFunction = (shareType == ReportType.pdf)?  saveAndSharePdf : saveAndShareImage;
+    await handlingFunction(pdfBytes, "محطة ${model.stationName} - ${formatDate(model.date).replaceAll(r'/', '-')}", model: model);
+
+  } else {
+    debugPrint("Permission denied for storage.");
+  }
+}
+
+
+Future<void> saveAndSharePdf(Uint8List pdfBytes, String filename, {required ReportModel model}) async {
+  // Get the internal storage directory (application documents directory)
+
+  // Get the internal storage directory
+  Directory? directory = await getExternalStorageDirectory();
+  if (directory != null) {
+    final reportsDir = Directory("${directory.path}/YGC Reports/reports/pdf");
+
+    if (!await reportsDir.exists()) {
+      await reportsDir.create(recursive: true);
+    }
+
+    final filePath = "${reportsDir.path}/$filename.pdf";
+    final file = File(filePath);
+
+    await file.writeAsBytes(pdfBytes);
+
+    // Share the file
+    await Share.shareXFiles(
+      [XFile(file.path)],
+      text: 'تقرير محطة ${model.stationName} ليوم ${getDayName(model.date)} الموافق ${formatDate(model.date)} من الساعة ${formatTimeOfDay(model.beginTime)} الى الساعة ${formatTimeOfDay(model.endTime)}. مندوب الشركة اليمنية للغاز: ${model.representativeName}.',
+    );
+  }
+}
+
+Future<void> saveAndShareImage(Uint8List pdfBytes, String filename, {required ReportModel model}) async {
+  Directory? directory = await getExternalStorageDirectory();
+  if (directory != null) {
+    final reportsDir = Directory("${directory.path}/YGC Reports/reports/images");
+    if (!await reportsDir.exists()) {
+      await reportsDir.create(recursive: true);
+    }
+    final Uint8List? imageBytes = await convertPdfToImage(pdfBytes);
+
+    if(imageBytes == null){
+      saveAndSharePdf(pdfBytes, filename, model: model);
+      return;
+    }
+
+    final filePath = "${reportsDir.path}/$filename.png";
+    final file = File(filePath);
+    await file.writeAsBytes(imageBytes);
+    
+    // Share the image file
+    await Share.shareXFiles(
+      [XFile(file.path)],
+      text: 'تقرير محطة ${model.stationName} ليوم ${getDayName(model.date)} الموافق ${formatDate(model.date).replaceAll(r'/', "-")} من الساعة ${formatTimeOfDay(model.beginTime)} الى الساعة ${formatTimeOfDay(model.endTime)}. مندوب الشركة اليمنية للغاز: ${model.representativeName}.',
+    );
+  }
+}
+
+
+Future<Uint8List?> convertPdfToImage(Uint8List pdfBytes) async {
+  // Open the PDF document from your bytes.
+  final doc = await pdfRender.PdfDocument.openData(pdfBytes);
+  // Get the first page of the PDF.
+  final page = await doc.getPage(1);
+  
+  // Render the page at a desired width/height.
+  final pageImage = await page.render(
+    width: page.width.toInt(), // Adjust as needed
+    height: page.height.toInt(),
+    // Optionally, set background or full render parameters.
   );
-
-  return pdf.save();
+  
+  // Get the image data as a Uint8List.
+  final imageBytes = pageImage.pixels;
+  
+  // Don't forget to release the page resources!
+  await doc.dispose();
+  return imageBytes;
 }

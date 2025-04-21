@@ -20,7 +20,7 @@ import 'package:pdf_render/pdf_render.dart' as pdfRender;
 Future<void> generateReport({
   required BuildContext context,
   required ReportModel model,
-  required ReportType shareType
+  required ReportType fileType
 }) async {
   if (await Permission.storage.request().isGranted) {
 
@@ -33,7 +33,7 @@ Future<void> generateReport({
     // Load Arabic font from assets
     final fontData = await rootBundle.load('assets/fonts/cairo/Cairo-Regular.ttf');
     final arabicFont = pw.Font.ttf(fontData);
-    final ReportPrinter reportPrinter = ReportPrinter(font: arabicFont, data: model);
+    final ReportPrinter reportPrinter = ReportPrinter(font: arabicFont, data: model, fileType: fileType);
 
     pdf.addPage(
       pw.Page(
@@ -58,7 +58,7 @@ Future<void> generateReport({
     );
 
     final Uint8List pdfBytes = await pdf.save();
-    final Future<void> Function(BuildContext, Uint8List, String, {required ReportModel model}) handlingFunction = (shareType == ReportType.pdf)?  saveAndSharePdf : saveAndShareImage;
+    final Future<void> Function(BuildContext, Uint8List, String, {required ReportModel model}) handlingFunction = (fileType == ReportType.pdf)?  saveAndSharePdf : saveAndShareImage;
     reportRepository.insertReport(model);
     await handlingFunction(context, pdfBytes, "محطة ${model.stationName} - ${formatDate(model.date).replaceAll(r'/', '-')}", model: model);
 

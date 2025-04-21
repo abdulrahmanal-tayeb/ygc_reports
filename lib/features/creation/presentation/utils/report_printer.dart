@@ -3,15 +3,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:ygc_reports/core/constants/report_type.dart';
 import 'package:ygc_reports/models/report_model.dart';
 import "package:ygc_reports/core/utils/formatters.dart";
 
 class ReportPrinter {
   final pw.Font font;
   final ReportModel data;
+  final double width = 595.3;
+  final double height = 842;
+  final double margin = 56.7;
+  final double qrCodeSize = 70;
+  final ReportType fileType;
+  final bool generateQR;
+  final bool addWatermark;
+
   ReportPrinter({
     required this.font,
-    required this.data
+    required this.data,
+    required this.fileType,
+    this.generateQR = true,
+    this.addWatermark = true
   });
 
   List<pw.Widget> buildReport(){
@@ -23,7 +35,8 @@ class ReportPrinter {
       ..._pumpReads(),
       ..._remainingLoad(),
       ..._notes(),
-      ..._employees()
+      ..._employees(),
+      ..._footer(),
     ];
   }
 
@@ -101,7 +114,7 @@ class ReportPrinter {
                       font: font,
                       fontWeight: pw.FontWeight.bold,
                     ),
-                    text: "${data.stationName} "
+                    text: _convertIncompatibleLetters("${data.stationName} ")
                   ),
                   pw.TextSpan(
                     style: style,
@@ -345,7 +358,7 @@ class ReportPrinter {
             width: 500,
             height: 80,
             child: arabicText(
-              data.notes,
+              _convertIncompatibleLetters(data.notes),
               maxLines: 4
             ),
           ),
@@ -367,7 +380,7 @@ class ReportPrinter {
         child: pw.Container(
           width: 300,
           height: 15,
-          child: arabicText(data.workerName),
+          child: arabicText(_convertIncompatibleLetters(data.workerName)),
         ),
       ),
 
@@ -392,7 +405,7 @@ class ReportPrinter {
         child: pw.Container(
           width: 130,
           height: 15,
-          child: arabicText(data.representativeName)
+          child: arabicText(_convertIncompatibleLetters(data.representativeName))
         ),
       ),
 
@@ -414,7 +427,43 @@ class ReportPrinter {
         )
     ];
   }
+
+  List<pw.Widget> _footer(){
+    return [
+
+      // On images, it will be useless because it won't have enough quality to be scanned.
+      if(fileType == ReportType.pdf && generateQR)
+        pw.Positioned(
+          bottom: 50,
+          left: (width / 2)- (qrCodeSize / 2) + 2,
+          child: pw.Container(
+            width: 70,
+            height: 70,
+            child: pw.Align(
+              alignment: pw.Alignment.centerRight,
+              child: data.qrForPdf(size: 70),
+            ),
+          ),
+        ),
+      
+      if(addWatermark)
+        pw.Positioned(
+          bottom: 7,
+          child: pw.Container(
+            width: width,
+            height: 50,
+            child: pw.Center(
+              child: pw.Text("Generated using YGC Reports from AmtCode.", style: pw.TextStyle(fontSize: 10)),
+            ),
+          ),
+        )
+    ];
+  }
   
 
+  String _convertIncompatibleLetters(String? text){
+    if(text == null || text.isEmpty) return '';
+    return text.replaceAll('\u06CC', '\u064A');
+  }
 
 }

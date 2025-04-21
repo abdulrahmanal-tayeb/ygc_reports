@@ -28,65 +28,59 @@ Future<Uint8List?> showSignaturePad(BuildContext context) async {
           left: 16,
           right: 16,
         ),
-        child: StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              "Sign Below",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              height: 250,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.black26),
+                borderRadius: BorderRadius.circular(8),
+                color: Colors.grey[200],
+              ),
+              child: Signature(
+                controller: _controller,
+                backgroundColor: Colors.transparent,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  "Sign Below",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                TextButton.icon(
+                  onPressed: _controller.clear,
+                  icon: const Icon(Icons.refresh),
+                  label: const Text("Clear"),
                 ),
-                const SizedBox(height: 12),
-                Container(
-                  height: 250,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black26),
-                    borderRadius: BorderRadius.circular(8),
-                    color: Colors.grey[200],
-                  ),
-                  child: Signature(
-                    controller: _controller,
-                    backgroundColor: Colors.transparent,
-                  ),
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    // Ensure we haven't disposed yet
+                    if (_controller.isNotEmpty) {
+                      final image = await _controller.toPngBytes();
+                      if (image != null) {
+                        signatureResult = image;
+                        // Pop the bottom sheet using GoRouter's context extension.
+                        // Alternatively, you can use Navigator.of(context).pop()
+                        context.pop();
+                      }
+                    }
+                  },
+                  icon: const Icon(Icons.check, color: Colors.black),
+                  label: const Text("Save"),
                 ),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    TextButton.icon(
-                      onPressed: _controller.clear,
-                      icon: const Icon(Icons.refresh),
-                      label: const Text("Clear"),
-                    ),
-                    ElevatedButton.icon(
-                      onPressed: () async {
-                        // Ensure we haven't disposed yet
-                        if (_controller.isNotEmpty) {
-                          final image = await _controller.toPngBytes();
-                          if (image != null) {
-                            signatureResult = image;
-                            // Pop the bottom sheet using GoRouter's context extension.
-                            // Alternatively, you can use Navigator.of(context).pop()
-                            context.pop();
-                          }
-                        }
-                      },
-                      icon: const Icon(Icons.check, color: Colors.black),
-                      label: const Text("Save"),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
               ],
-            );
-          },
+            ),
+            const SizedBox(height: 12),
+          ],
         ),
       );
     },
   );
 
-  // Make sure to dispose the controller once the bottom sheet is closed.
-  _controller.dispose();
   return signatureResult;
 }

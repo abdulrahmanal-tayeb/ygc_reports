@@ -21,10 +21,7 @@ class CreateReportScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => ReportProvider(),
-      child: Scaffold(
-        appBar: AppBar(title: Text('Create Report')),
-        body: const CreateReportForm(),
-      ),
+      child: const CreateReportForm(),
     );
   }
 }
@@ -98,212 +95,217 @@ class _CreateReportFormState extends State<CreateReportForm> {
     final model = provider.model;
 
     debugPrint("MOOOOOOOOOOOOOOOOOOOOOOOOOOOdEL: ${provider.model.totalLoad}");
-    return Form(
-      child: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          // --- Metadata Section ---
-          buildSection(
-            title: 'Metadata',
+    return Scaffold(
+        appBar: AppBar(title: Text('Create Report')),
+        body: Form(
+          child: ListView(
+            padding: const EdgeInsets.all(16),
             children: [
-              _spaced(TextFormField(
-                decoration: const InputDecoration(labelText: 'Station Name'),
-                initialValue: model.stationName,
-                onChanged: provider.setStationName,
-                validator: (val) => Validators.required(val, 'Station Name'),
-              )),
-              _spaced(GestureDetector(
-                onTap: () async {
-                  final picked = await showDatePicker(
-                    context: context,
-                    initialDate: model.date,
-                    firstDate: DateTime(2020),
-                    lastDate: DateTime.now().add(const Duration(days: 30)),
-                  );
-                  if (picked != null) provider.setDate(picked);
-                },
-                child: AbsorbPointer(
-                  child: TextFormField(
-                    decoration: const InputDecoration(labelText: 'Date'),
-                    controller: TextEditingController(
-                      text: model.date.toString().split(" ")[0],
+              // --- Metadata Section ---
+              buildSection(
+                title: 'Metadata',
+                children: [
+                  _spaced(TextFormField(
+                    decoration: const InputDecoration(labelText: 'Station Name'),
+                    initialValue: model.stationName,
+                    onChanged: provider.setStationName,
+                    validator: (val) => Validators.required(val, 'Station Name'),
+                  )),
+                  _spaced(GestureDetector(
+                    onTap: () async {
+                      final picked = await showDatePicker(
+                        context: context,
+                        initialDate: model.date,
+                        firstDate: DateTime(2020),
+                        lastDate: DateTime.now().add(const Duration(days: 30)),
+                      );
+                      if (picked != null) provider.setDate(picked);
+                    },
+                    child: AbsorbPointer(
+                      child: TextFormField(
+                        decoration: const InputDecoration(labelText: 'Date'),
+                        controller: TextEditingController(
+                          text: model.date.toString().split(" ")[0],
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              )),
-              _spaced(TimeInputField(
-                label: 'Begin Time',
-                initialTime: model.beginTime,
-                onTimeChanged: provider.setBeginTime,
-              )),
-              _spaced(TimeInputField(
-                label: 'End Time',
-                initialTime: model.endTime,
-                onTimeChanged: provider.setEndTime,
-              )),
-            ],
-          ),
-          buildSection(
-            title: 'Station Status',
-            children: [
-              _spaced(buildNumberField(context, 'Tank Load', model.tankLoad, 'tankLoad', calculateDependent: () => updateTotalTankLoad(provider))),
-              _spaced(buildNumberField(context, 'Inbound Amount', model.inboundAmount, 'inboundAmount', calculateDependent: () => updateTotalTankLoad(provider))),
-              _spaced(buildNumberField(context, 'Total Load', model.totalLoad, 'totalLoad', enabled: false)),
-            ],
-          ),
+                  )),
+                  _spaced(TimeInputField(
+                    label: 'Begin Time',
+                    initialTime: model.beginTime,
+                    onTimeChanged: provider.setBeginTime,
+                  )),
+                  _spaced(TimeInputField(
+                    label: 'End Time',
+                    initialTime: model.endTime,
+                    onTimeChanged: provider.setEndTime,
+                  )),
+                ],
+              ),
+              buildSection(
+                title: 'Station Status',
+                children: [
+                  _spaced(buildNumberField(context, 'Tank Load', model.tankLoad, 'tankLoad', calculateDependent: () => updateTotalTankLoad(provider))),
+                  _spaced(buildNumberField(context, 'Inbound Amount', model.inboundAmount, 'inboundAmount', calculateDependent: () => updateTotalTankLoad(provider))),
+                  _spaced(buildNumberField(context, 'Total Load', model.totalLoad, 'totalLoad', enabled: false)),
+                ],
+              ),
 
-          buildSection(
-            title: 'Pump Readings',
-            children: [
-              ...List.generate(pumpRows.length, (index) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Column(
-                    spacing: 5,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+              buildSection(
+                title: 'Pump Readings',
+                children: [
+                  ...List.generate(pumpRows.length, (index) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Column(
+                        spacing: 5,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: FocusTextField(
-                              decoration: const InputDecoration(labelText: 'Start Reading'),
-                              initialValue: pumpRows[index]["start"].toString(),
-                              onDebouncedChanged: (val) {
-                                updateReadingRow("start", index, int.tryParse(val) ?? 0);
-                              },
-                            ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: FocusTextField(
+                                  decoration: const InputDecoration(labelText: 'Start Reading'),
+                                  initialValue: pumpRows[index]["start"].toString(),
+                                  onDebouncedChanged: (val) {
+                                    updateReadingRow("start", index, int.tryParse(val) ?? 0);
+                                  },
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: FocusTextField(
+                                  decoration: const InputDecoration(labelText: 'End Reading'),
+                                  initialValue: pumpRows[index]["end"].toString(),
+                                  onDebouncedChanged: (val) {
+                                    updateReadingRow("end", index, int.tryParse(val) ?? 0);
+                                  },
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              if(index != 0)
+                                IconButton(
+                                  icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
+                                  onPressed: pumpRows.length > 1
+                                      ? () {
+                                          setState(() => pumpRows.removeAt(index));
+                                        }
+                                      : null,
+                                ),
+                            ],
                           ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: FocusTextField(
-                              decoration: const InputDecoration(labelText: 'End Reading'),
-                              initialValue: pumpRows[index]["end"].toString(),
-                              onDebouncedChanged: (val) {
-                                updateReadingRow("end", index, int.tryParse(val) ?? 0);
-                              },
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          if(index != 0)
-                            IconButton(
-                              icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
-                              onPressed: pumpRows.length > 1
-                                  ? () {
-                                      setState(() => pumpRows.removeAt(index));
-                                    }
-                                  : null,
-                            ),
+                          if(pumpRows[index]["total"] != null)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 5),
+                              child: Text(
+                                "Consumed: ${pumpRows[index]["total"]}", 
+                                style: TextStyle(
+                                  fontSize: 8
+
+                                ),
+                              )
+                            )
                         ],
                       ),
-                      if(pumpRows[index]["total"] != null)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 5),
-                          child: Text(
-                            "Consumed: ${pumpRows[index]["total"]}", 
-                            style: TextStyle(
-                              fontSize: 8
-
-                            ),
-                          )
-                        )
-                    ],
+                    );
+                  }),
+                  TextButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        pumpRows.add({"start": 0, "end": 0, "total": 0});
+                      });
+                    },
+                    icon: const Icon(Icons.add),
+                    label: const Text("Add Row"),
                   ),
-                );
-              }),
-              TextButton.icon(
-                onPressed: () {
-                  setState(() {
-                    pumpRows.add({"start": 0, "end": 0, "total": 0});
-                  });
-                },
-                icon: const Icon(Icons.add),
-                label: const Text("Add Row"),
+                ],
+              ),
+
+              buildSection(
+                title: 'Notes',
+                children: [
+                  _spaced(
+                    buildNumberField(
+                      context, 'Filled for People (L)', 
+                      model.filledForPeople, 
+                      'filledForPeople', 
+                      calculateDependent: () => updateNotesReadings(provider),
+
+                      // Because the `totalConsumed` is only calculated when creating the report, and will not be available until then.
+                      onFocus: () => updateDependantFields(provider),
+                      validator: (String? value) {
+                        debugPrint("BROOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+                        if(value == null || value.isEmpty) return null;
+
+                        final number = int.tryParse(value);
+                        if (number == null) {
+                          return 'Please enter a valid number';
+                        }
+
+                        if (number > 100) {
+                          return 'The number should not exceed 100';
+                        }
+
+                        return null;
+                      }
+                    )
+                  ),
+                  _spaced(FocusTextField(
+                    decoration: const InputDecoration(labelText: 'Notes'),
+                    initialValue: model.notes,
+                    maxLines: 3,
+                    onDebouncedChanged: (v) => provider.setField('notes', v),
+                  )),
+                ],
+              ),
+
+              buildSection(
+                title: 'Workers',
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: buildSection(
+                      title: "Station Worker",
+                      children: [
+                        _spaced(TextFormField(
+                          decoration: const InputDecoration(labelText: 'Station Worker Name'),
+                          initialValue: model.workerName,
+                          onChanged: (v) => provider.setField('workerName', v),
+                        )),
+                        _buildSignature("worker", provider)
+                      ]
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: buildSection(
+                      title: "YGC Representative", 
+                      children: [
+                        _spaced(TextFormField(
+                          decoration: const InputDecoration(labelText: 'YGC Representative Name'),
+                          initialValue: model.representativeName,
+                          onChanged: (v) => provider.setField('representativeName', v),
+                        )),
+
+                        _buildSignature("representative", provider)
+                      ]
+                    )
+                  )
+                  
+                ],
               ),
             ],
           ),
-
-          buildSection(
-            title: 'Notes',
-            children: [
-              _spaced(
-                buildNumberField(
-                  context, 'Filled for People (L)', 
-                  model.filledForPeople, 
-                  'filledForPeople', 
-                  calculateDependent: () => updateNotesReadings(provider),
-
-                  // Because the `totalConsumed` is only calculated when creating the report, and will not be available until then.
-                  onFocus: () => updateDependantFields(provider),
-                  validator: (String? value) {
-                    debugPrint("BROOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
-                    if(value == null || value.isEmpty) return null;
-
-                    final number = int.tryParse(value);
-                    if (number == null) {
-                      return 'Please enter a valid number';
-                    }
-
-                    if (number > 100) {
-                      return 'The number should not exceed 100';
-                    }
-
-                    return null;
-                  }
-                )
-              ),
-              _spaced(FocusTextField(
-                decoration: const InputDecoration(labelText: 'Notes'),
-                initialValue: model.notes,
-                maxLines: 3,
-                onDebouncedChanged: (v) => provider.setField('notes', v),
-              )),
-            ],
-          ),
-
-          buildSection(
-            title: 'Workers',
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: buildSection(
-                  title: "Station Worker",
-                  children: [
-                    _spaced(TextFormField(
-                      decoration: const InputDecoration(labelText: 'Station Worker Name'),
-                      initialValue: model.workerName,
-                      onChanged: (v) => provider.setField('workerName', v),
-                    )),
-                    _buildSignature("worker", provider)
-                  ]
-                ),
-              ),
-              const SizedBox(height: 5),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: buildSection(
-                  title: "YGC Representative", 
-                  children: [
-                    _spaced(TextFormField(
-                      decoration: const InputDecoration(labelText: 'YGC Representative Name'),
-                      initialValue: model.representativeName,
-                      onChanged: (v) => provider.setField('representativeName', v),
-                    )),
-
-                    _buildSignature("representative", provider)
-                  ]
-                )
-              )
-              
-            ],
-          ),
-          const SizedBox(height: 30),
-          ElevatedButton(
+        ),
+        bottomNavigationBar: Padding(
+          padding: const EdgeInsets.all(10),
+          child: ElevatedButton(
             onPressed: () => _generateReport(provider), 
             child: const Text("Create")
           )
-        ],
-      ),
-    );
+        ),
+      );
   }
 
   Widget _buildSignature(String employee, ReportProvider provider){
@@ -328,8 +330,12 @@ class _CreateReportFormState extends State<CreateReportForm> {
           const SizedBox(height: 10,),
           ElevatedButton(
             onPressed: () async {
-              final signature = await showSignaturePad(context);
-              provider.setField("${employee}Signature", signature);
+              try {
+                final signature = await showSignaturePad(context);
+                provider.setField("${employee}Signature", signature);
+              } catch(e){
+                debugPrint("Couldn't get the signature: $e");
+              }
             }, 
             child: const Text("Sign")
           )

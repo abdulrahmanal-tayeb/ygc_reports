@@ -54,6 +54,6 @@ class ReportModel {
     this.representativeSignature,
     this.workerSignature
   })  : date = date ?? DateTime.now(),
-        beginTime = beginTime ?? const TimeOfDay(hour: 8, minute: 0),
-        endTime = endTime ?? const TimeOfDay(hour: 16, minute: 0);
+        beginTime = beginTime ?? const TimeOfDay(hour: 20, minute: 0),
+        endTime = endTime ?? const TimeOfDay(hour: 20, minute: 0);
 }

@@ -95,7 +95,10 @@ class _FocusTextFieldState extends State<FocusTextField> {
 
     // Update controller if needed
     if (!_isExternalController && widget.initialValue != oldWidget.initialValue) {
-      _internalController?.text = widget.initialValue ?? '';
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _internalController?.text = widget.initialValue ?? '';
+      });
     }
   }
   void _handleFocusChange() {
@@ -114,16 +117,20 @@ class _FocusTextFieldState extends State<FocusTextField> {
   void _onTextChanged(String value) {
     widget.onChanged?.call(value);
 
-    // 🔁 Real-time validation
-    final form = Form.of(context);
-    form.validate();
-
+    // ⏱ Debounce first
     if (widget.onDebouncedChanged != null) {
       _debounceTimer?.cancel();
       _debounceTimer = Timer(widget.debounceDuration, () {
         widget.onDebouncedChanged?.call(value);
       });
     }
+
+    // ✅ Defer form validation to after current frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final form = Form.of(context);
+      form.validate();
+    });
   }
 
   @override

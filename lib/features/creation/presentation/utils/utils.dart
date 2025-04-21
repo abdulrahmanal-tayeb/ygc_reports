@@ -8,6 +8,7 @@ import 'package:pdf/pdf.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:ygc_reports/core/constants/report_type.dart';
+import 'package:ygc_reports/core/services/database/report_repository.dart';
 import 'package:ygc_reports/core/utils/formatters.dart';
 import 'package:ygc_reports/features/creation/presentation/utils/report_printer.dart';
 import 'package:ygc_reports/modals/saved_report_preview/saved_report_preview.dart';
@@ -57,7 +58,9 @@ Future<void> generateReport({
 
     final Uint8List pdfBytes = await pdf.save();
     final Future<void> Function(BuildContext, Uint8List, String, {required ReportModel model}) handlingFunction = (shareType == ReportType.pdf)?  saveAndSharePdf : saveAndShareImage;
+    reportRepository.insertReport(model);
     await handlingFunction(context, pdfBytes, "محطة ${model.stationName} - ${formatDate(model.date).replaceAll(r'/', '-')}", model: model);
+
   } else {
     debugPrint("Permission denied for storage.");
   }

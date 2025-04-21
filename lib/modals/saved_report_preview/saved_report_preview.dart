@@ -1,7 +1,9 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 
-Future<void> showReportPreview(BuildContext context, String reportPath, {void Function()? onShare}) async {
+Future<void> showReportPreview(BuildContext context, {String? path, Uint8List? data,  void Function()? onShare}) async {
   await showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -31,47 +33,55 @@ Future<void> showReportPreview(BuildContext context, String reportPath, {void Fu
                 ),
               ],
             ),
-            body: Column(
-              children: [
-                Expanded(
-                  child: PDFView(
-                    filePath: reportPath,
-                    autoSpacing: true,
-                    enableSwipe: true,
-                    swipeHorizontal: false,
-                    pageSnap: true,
-                    fitEachPage: true,
-                    fitPolicy: FitPolicy.BOTH,
-                    onError: (error) =>
-                        debugPrint('PDFView error: $error'),
-                    onPageError: (page, error) =>
-                        debugPrint('Error on page $page: $error'),
+            body: Container(
+              color: Colors.white,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: 
+                    (path != null)?
+                      PDFView(
+                        filePath: path,
+                        autoSpacing: true,
+                        enableSwipe: true,
+                        swipeHorizontal: false,
+                        pageSnap: true,
+                        fitEachPage: true,
+                        fitPolicy: FitPolicy.BOTH,
+                        onError: (error) =>
+                            debugPrint('PDFView error: $error'),
+                        onPageError: (page, error) =>
+                            debugPrint('Error on page $page: $error'),
+                      )
+                    : (data != null) ?
+                      Image.memory(data)
+                      : const Center(child: Text("Preview not available."))
                   ),
-                ),
-                SafeArea(
-                  child: Container(
-                    color: Colors.white,
-                    child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: onShare,
-                        icon: const Icon(Icons.share, color: Colors.white,),
-                        label: const Text('Share', style: TextStyle(color: Colors.white),),
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                  SafeArea(
+                    child: Container(
+                      color: Colors.white,
+                      child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: onShare,
+                          icon: const Icon(Icons.share, color: Colors.white,),
+                          label: const Text('Share', style: TextStyle(color: Colors.white),),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            backgroundColor: Colors.black
                           ),
-                          backgroundColor: Colors.black
                         ),
                       ),
+                    )
                     ),
-                  )
                   ),
-                ),
-              ],
+                ],
+              )
             ),
           ),
         ),

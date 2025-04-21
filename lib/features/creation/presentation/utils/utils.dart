@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -84,12 +85,16 @@ Future<void> saveAndSharePdf(BuildContext context, Uint8List pdfBytes, String fi
 
     await file.writeAsBytes(pdfBytes);
 
-    await showReportPreview(context, filePath, onShare: () async {
-      await Share.shareXFiles(
-        [XFile(file.path)],
-        text: 'تقرير محطة ${model.stationName} ليوم ${getDayName(model.date)} الموافق ${formatDate(model.date)} من الساعة ${formatTimeOfDay(model.beginTime)} الى الساعة ${formatTimeOfDay(model.endTime)}. مندوب الشركة اليمنية للغاز: ${model.representativeName}.',
-      );
-    });
+    await showReportPreview(
+      context, 
+      path: filePath,
+      onShare: () async {
+        await Share.shareXFiles(
+          [XFile(file.path)],
+          text: 'تقرير محطة ${model.stationName} ليوم ${getDayName(model.date)} الموافق ${formatDate(model.date)} من الساعة ${formatTimeOfDay(model.beginTime)} الى الساعة ${formatTimeOfDay(model.endTime)}. مندوب الشركة اليمنية للغاز: ${model.representativeName}.',
+        );
+      }
+    );
   }
 }
 
@@ -111,34 +116,43 @@ Future<void> saveAndShareImage(BuildContext context, Uint8List pdfBytes, String 
     final file = File(filePath);
     await file.writeAsBytes(imageBytes);
 
-    await showReportPreview(context, filePath, onShare: () async {
-      await Share.shareXFiles(
-        [XFile(file.path)],
-        text: 'تقرير محطة ${model.stationName} ليوم ${getDayName(model.date)} الموافق ${formatDate(model.date).replaceAll(r'/', "-")} من الساعة ${formatTimeOfDay(model.beginTime)} الى الساعة ${formatTimeOfDay(model.endTime)}. مندوب الشركة اليمنية للغاز: ${model.representativeName}.',
-      );
-    });
+    await showReportPreview(
+      context, 
+      data: imageBytes,
+      onShare: () async {
+        await Share.shareXFiles(
+          [XFile(file.path)],
+          text: 'تقرير محطة ${model.stationName} ليوم ${getDayName(model.date)} الموافق ${formatDate(model.date).replaceAll(r'/', "-")} من الساعة ${formatTimeOfDay(model.beginTime)} الى الساعة ${formatTimeOfDay(model.endTime)}. مندوب الشركة اليمنية للغاز: ${model.representativeName}.',
+        );
+      }
+    );
      
   }
 }
 
-
 Future<Uint8List?> convertPdfToImage(Uint8List pdfBytes) async {
-  // Open the PDF document from your bytes.
-  final doc = await pdfRender.PdfDocument.openData(pdfBytes);
-  // Get the first page of the PDF.
-  final page = await doc.getPage(1);
-  
-  // Render the page at a desired width/height.
+  // 1) Load the PDF into memory.
+  final doc = await pdfRender.PdfDocument.openData(pdfBytes); 
+
+  // 2) Grab page #1.
+  final page = await doc.getPage(1); 
+
+  // 3) Render to a PdfPageImage (defaults to PNG-like output internally).
   final pageImage = await page.render(
-    width: page.width.toInt(), // Adjust as needed
+    width:  page.width.toInt(),
     height: page.height.toInt(),
-    // Optionally, set background or full render parameters.
+    backgroundFill:       true,
+    allowAntialiasingIOS: true,
   );
-  
-  // Get the image data as a Uint8List.
-  final imageBytes = pageImage.pixels;
-  
-  // Don't forget to release the page resources!
-  await doc.dispose();
-  return imageBytes;
+
+  // 4) Convert PdfPageImage → ui.Image
+  final uiImage = await pageImage.createImageDetached(); 
+
+  // 5) Encode ui.Image to PNG bytes
+  final byteData = await uiImage.toByteData(format: ImageByteFormat.png);
+
+  // 6) Clean up the raw page image buffer
+  pageImage.dispose(); 
+
+  return byteData?.buffer.asUint8List();
 }

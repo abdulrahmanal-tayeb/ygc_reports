@@ -46,6 +46,7 @@ dependencies:
   share_plus: ^10.1.4
   pdf_render: ^1.4.12
   signature: ^5.5.0
+  flutter_pdfview: ^1.4.0+1
 
 dev_dependencies:
   flutter_test:

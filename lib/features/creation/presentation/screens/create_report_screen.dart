@@ -88,7 +88,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
 
     showShareTypeBottomSheet(
       context: context,
-      onSelected: (ReportType selectedType) async => await generateReport(model: recentModel, shareType: selectedType),
+      onSelected: (ReportType selectedType) async => await generateReport(context: context, model: recentModel, shareType: selectedType),
     );
   }
 
@@ -225,7 +225,32 @@ class _CreateReportFormState extends State<CreateReportForm> {
           buildSection(
             title: 'Notes',
             children: [
-              _spaced(buildNumberField(context, 'Filled for People (L)', model.filledForPeople, 'filledForPeople', calculateDependent: () => updateNotesReadings(provider))),
+              _spaced(
+                buildNumberField(
+                  context, 'Filled for People (L)', 
+                  model.filledForPeople, 
+                  'filledForPeople', 
+                  calculateDependent: () => updateNotesReadings(provider),
+
+                  // Because the `totalConsumed` is only calculated when creating the report, and will not be available until then.
+                  onFocus: () => updateDependantFields(provider),
+                  validator: (String? value) {
+                    debugPrint("BROOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+                    if(value == null || value.isEmpty) return null;
+
+                    final number = int.tryParse(value);
+                    if (number == null) {
+                      return 'Please enter a valid number';
+                    }
+
+                    if (number > 100) {
+                      return 'The number should not exceed 100';
+                    }
+
+                    return null;
+                  }
+                )
+              ),
               _spaced(FocusTextField(
                 decoration: const InputDecoration(labelText: 'Notes'),
                 initialValue: model.notes,
@@ -324,7 +349,17 @@ class _CreateReportFormState extends State<CreateReportForm> {
     );
   }
 
-  Widget buildNumberField(BuildContext context, String label, int value, String fieldName, {void Function()? calculateDependent, bool enabled = true}) {
+  Widget buildNumberField(
+    BuildContext context, 
+    String label, 
+    int value, 
+    String fieldName, 
+    {
+      void Function()? calculateDependent, 
+      bool enabled = true,
+      String? Function(String?)? validator,
+      void Function()? onFocus
+    }) {
     final provider = Provider.of<ReportProvider>(context, listen: false);
     return FocusTextField(
       decoration: InputDecoration(labelText: label),
@@ -335,9 +370,10 @@ class _CreateReportFormState extends State<CreateReportForm> {
         provider.setField(fieldName, int.tryParse(val) ?? 0);
         calculateDependent?.call();
       },
-      validator: (val) => Validators.positiveNumber(val, label),
+      validator: validator ?? (val) => Validators.positiveNumber(val, label),
       onBlur: calculateDependent,
       enabled: enabled,
+      onFocus: onFocus,
     );
   }
 

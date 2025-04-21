@@ -21,7 +21,19 @@ class CreateReportScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => ReportProvider(),
-      child: const CreateReportForm(),
+      child: PopScope(
+        canPop: !FocusScope.of(context).hasFocus,
+        onPopInvokedWithResult: (popped, object){
+          FocusScope.of(context).unfocus();
+        },
+        child: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus();
+          },
+          behavior: HitTestBehavior.opaque,
+          child: const CreateReportForm()
+        )
+      ),
     );
   }
 }
@@ -89,12 +101,26 @@ class _CreateReportFormState extends State<CreateReportForm> {
     );
   }
 
+  String? validateNumber(String? value, {bool isRequired = false}) {
+    if (isRequired && (value == null || value.isEmpty)) {
+      return 'This field is required';
+    }
+
+    if(value == null) return null;
+
+    final isNumeric = RegExp(r'^\d+$').hasMatch(value);
+    if (!isNumeric) {
+      return 'Only numbers';
+    }
+
+    return null; // ✅ valid
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<ReportProvider>(context);
     final model = provider.model;
 
-    debugPrint("MOOOOOOOOOOOOOOOOOOOOOOOOOOOdEL: ${provider.model.totalLoad}");
     return Scaffold(
         appBar: AppBar(title: Text('Create Report')),
         body: Form(
@@ -170,6 +196,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
                                   onDebouncedChanged: (val) {
                                     updateReadingRow("start", index, int.tryParse(val) ?? 0);
                                   },
+                                  validator: (val) => validateNumber(val, isRequired: true),
                                 ),
                               ),
                               const SizedBox(width: 10),
@@ -180,6 +207,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
                                   onDebouncedChanged: (val) {
                                     updateReadingRow("end", index, int.tryParse(val) ?? 0);
                                   },
+                                  validator: (val) => validateNumber(val, isRequired: true),
                                 ),
                               ),
                               const SizedBox(width: 6),
@@ -229,21 +257,22 @@ class _CreateReportFormState extends State<CreateReportForm> {
                       context, 'Filled for People (L)', 
                       model.filledForPeople, 
                       'filledForPeople', 
+                      decoration: InputDecoration(
+                        labelText: 'Filled for People (L)',
+                        suffixText: '/ ${model.totalConsumed}',
+                      ),
                       calculateDependent: () => updateNotesReadings(provider),
-
                       // Because the `totalConsumed` is only calculated when creating the report, and will not be available until then.
                       onFocus: () => updateDependantFields(provider),
                       validator: (String? value) {
-                        debugPrint("BROOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
                         if(value == null || value.isEmpty) return null;
-
                         final number = int.tryParse(value);
                         if (number == null) {
                           return 'Please enter a valid number';
                         }
 
-                        if (number > 100) {
-                          return 'The number should not exceed 100';
+                        if (number > model.totalConsumed) {
+                          return 'The number should not exceed ${model.totalConsumed}';
                         }
 
                         return null;
@@ -330,8 +359,10 @@ class _CreateReportFormState extends State<CreateReportForm> {
           const SizedBox(height: 10,),
           ElevatedButton(
             onPressed: () async {
+              FocusScope.of(context).unfocus();
               try {
                 final signature = await showSignaturePad(context);
+                if(signature == null) return;
                 provider.setField("${employee}Signature", signature);
               } catch(e){
                 debugPrint("Couldn't get the signature: $e");
@@ -364,11 +395,12 @@ class _CreateReportFormState extends State<CreateReportForm> {
       void Function()? calculateDependent, 
       bool enabled = true,
       String? Function(String?)? validator,
-      void Function()? onFocus
+      void Function()? onFocus,
+      InputDecoration? decoration
     }) {
     final provider = Provider.of<ReportProvider>(context, listen: false);
     return FocusTextField(
-      decoration: InputDecoration(labelText: label),
+      decoration: decoration ?? InputDecoration(labelText: label),
       initialValue: value.toString(),
       keyboardType: TextInputType.number,
       onDebouncedChanged: (val){

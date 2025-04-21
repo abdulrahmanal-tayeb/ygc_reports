@@ -99,16 +99,24 @@ class _FocusTextFieldState extends State<FocusTextField> {
     }
   }
   void _handleFocusChange() {
-    if (_internalFocusNode.hasFocus) {
-      widget.onFocus?.call();
-    } else {
-      debugPrint("[FocusTextField] Blur triggered");
-      widget.onBlur?.call();
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      if (_internalFocusNode.hasFocus) {
+        widget.onFocus?.call();
+      } else {
+        debugPrint("[FocusTextField] Blur triggered");
+        widget.onBlur?.call();
+      }
+    });
   }
 
   void _onTextChanged(String value) {
     widget.onChanged?.call(value);
+
+    // 🔁 Real-time validation
+    final form = Form.of(context);
+    form.validate();
 
     if (widget.onDebouncedChanged != null) {
       _debounceTimer?.cancel();

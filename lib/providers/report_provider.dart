@@ -30,25 +30,28 @@ class ReportProvider extends ChangeNotifier {
   void setField(String field, dynamic value, {bool notify = true}) {
     switch (field) {
       case 'tankLoad':
-        model.tankLoad = value;
+        model.tankLoad = int.tryParse(value) ?? 0;
         break;
       case 'inboundAmount':
-        model.inboundAmount = value;
+        model.inboundAmount = int.tryParse(value) ?? 0;
         break;
       case 'totalLoad':
-        model.totalLoad = value;
+        model.totalLoad = int.tryParse(value) ?? 0;
         break;
       case 'remainingLoad':
-        model.remainingLoad = value;
+        model.remainingLoad = int.tryParse(value) ?? 0;
         break;
       case 'overflow':
-        model.overflow = value;
+        model.overflow = int.tryParse(value) ?? 0;
         break;
       case 'underflow':
-        model.underflow = value;
+        model.underflow = int.tryParse(value) ?? 0;
         break;
       case 'filledForPeople':
-        model.filledForPeople = value;
+        model.filledForPeople = int.tryParse(value) ?? 0;
+        break;
+      case 'stationName':
+        model.stationName = value;
         break;
       case 'notes':
         model.notes = value;

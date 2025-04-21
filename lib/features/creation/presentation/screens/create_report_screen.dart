@@ -99,7 +99,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
 
     showShareTypeBottomSheet(
       context: context,
-      onSelected: (ReportType selectedType) async => await generateReport(context: context, model: recentModel, shareType: selectedType),
+      onSelected: (ReportType selectedType) async => await generateReport(context: context, model: recentModel, fileType: selectedType),
     );
   }
 
@@ -306,6 +306,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Column(
+              spacing: 5,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
@@ -340,7 +341,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
                     padding: const EdgeInsets.symmetric(horizontal: 5),
                     child: Text(
                       "Consumed: ${pumpRows[index]["total"]}",
-                      style: const TextStyle(fontSize: 8),
+                      style: TextStyle(fontSize: 8, color: Theme.of(context).hintColor),
                     ),
                   ),
               ],
@@ -490,7 +491,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
   }
 
   Widget _buildField<T>(
-    BuildContext context, 
+    BuildContext context,
     String label, 
     dynamic value,  // It will be casted to String regardless of its type.
     String fieldName, 
@@ -508,7 +509,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
       initialValue: value.toString(),
       keyboardType: keyboardType,
       onDebouncedChanged: (val){
-        provider.setField(fieldName, int.tryParse(val) ?? 0);
+        provider.setField(fieldName, val);
         onChange?.call();
       },
       validator: validator,

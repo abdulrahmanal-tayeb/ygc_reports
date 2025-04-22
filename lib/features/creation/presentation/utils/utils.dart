@@ -88,17 +88,19 @@ Future<void> saveAndSharePdf(BuildContext context, Uint8List pdfBytes, String fi
     final filePath = "${reportsDir.path}/$filename.pdf";
     final file = File(filePath);
 
-    await file.writeAsBytes(pdfBytes);
 
     await showReportPreview(
       context, 
       path: filePath,
-      onShare: () async {
+      onShare: ({bool save = true}) async {
+        if(save){
+          await file.writeAsBytes(pdfBytes);
+        }
         await Share.shareXFiles(
           [XFile(file.path)],
           text: 'تقرير محطة ${model.stationName} ليوم ${getDayName(model.date)} الموافق ${formatDate(model.date)} من الساعة ${formatTimeOfDay(model.beginTime)} الى الساعة ${formatTimeOfDay(model.endTime)}. مندوب الشركة اليمنية للغاز: ${model.representativeName}.',
         );
-      }
+      },
     );
   }
 }
@@ -119,12 +121,14 @@ Future<void> saveAndShareImage(BuildContext context, Uint8List pdfBytes, String 
 
     final filePath = "${reportsDir.path}/$filename.png";
     final file = File(filePath);
-    await file.writeAsBytes(imageBytes);
 
     await showReportPreview(
       context, 
       data: imageBytes,
-      onShare: () async {
+      onShare: ({bool save = true}) async {
+        if(save){
+          await file.writeAsBytes(imageBytes);
+        }
         await Share.shareXFiles(
           [XFile(file.path)],
           text: 'تقرير محطة ${model.stationName} ليوم ${getDayName(model.date)} الموافق ${formatDate(model.date).replaceAll(r'/', "-")} من الساعة ${formatTimeOfDay(model.beginTime)} الى الساعة ${formatTimeOfDay(model.endTime)}. مندوب الشركة اليمنية للغاز: ${model.representativeName}.',

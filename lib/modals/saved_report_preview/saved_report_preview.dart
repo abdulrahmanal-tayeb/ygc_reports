@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 
-Future<void> showReportPreview(BuildContext context, {String? path, Uint8List? data,  void Function()? onShare}) async {
+Future<void> showReportPreview(BuildContext context, {String? path, Uint8List? data,  required void Function({bool save}) onShare}) async {
   await showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -64,17 +64,42 @@ Future<void> showReportPreview(BuildContext context, {String? path, Uint8List? d
                       padding: const EdgeInsets.all(16.0),
                       child: SizedBox(
                         width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed: onShare,
-                          icon: const Icon(Icons.share, color: Colors.white,),
-                          label: const Text('Share', style: TextStyle(color: Colors.white),),
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                        child: Row(
+                          spacing: 5,
+                          children: [
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed: () => onShare!(save: false),
+                                icon: const Icon(Icons.share, color: Colors.black),
+                                label: const Text('Share Only', style: TextStyle(color: Colors.black)),
+                                style: ElevatedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    side: const BorderSide(color: Colors.black, width: 1),
+                                  ),
+                                  backgroundColor: Colors.transparent,
+                                  elevation: 0,
+                                  shadowColor: Colors.transparent,
+                                ),
+                              ),
                             ),
-                            backgroundColor: Colors.black
-                          ),
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed: onShare,
+                                icon: const Icon(Icons.save_alt_rounded, color: Colors.white,),
+                                label: const Text('Save & Share', style: TextStyle(color: Colors.white),),
+                                style: ElevatedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  backgroundColor: Colors.black
+                                ),
+                              )
+                            )
+                            
+                          ],
                         ),
                       ),
                     )

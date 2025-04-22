@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:provider/provider.dart';
@@ -122,16 +123,40 @@ class _CreateReportFormState extends State<CreateReportForm> {
   Widget build(BuildContext context) {
     final provider = Provider.of<ReportProvider>(context);
     return Scaffold(
-        appBar: AppBar(title: Text('Create Report')),
+        appBar: AppBar(
+          title: Text('Create Report'),
+          actions: [
+            IconButton(
+              onPressed: (){
+                context.push("/saved");
+              },
+              icon: Icon(Icons.save),
+            )
+          ],
+        ),
         body: Stack(
           children: [
-            _buildForm(context, provider),
+            Column(
+              spacing: 5,
+              children: [
+                Expanded(child: _buildForm(context, provider)),
+                Row(
+                  children: [
+                    Checkbox(
+                      value: provider.model.isEmptying,
+                      onChanged: (bool? isEmptying){
+                      provider.setField("isEmptying", isEmptying);
+                    }),
+                    const Text("Emptying report")
+                  ],
+                )
+              ]
+            ),
             Positioned(
               bottom: 10,
               right: 10,
               child: _buildFloatingButton(context, provider),
             )
-            ,
           ],
         ),
         bottomNavigationBar: Padding(
@@ -169,13 +194,22 @@ class _CreateReportFormState extends State<CreateReportForm> {
     return FloatingActions<Map<String, dynamic>>(
       options: [
         {"label": "From last report", "icon": Icons.history, "onTap": () async {
-            List<Map<String, int>>? pumpReadings = await provider.loadFromLastReport();
+            List<Map<String, int>>? pumpReadings = await provider.loadFromReport();
             setState(() {
               prefilledReport = true;
-              if(pumpReadings != null && pumpReadings.isNotEmpty){
+              if(pumpReadings.isNotEmpty){
                 pumpRows = pumpReadings;
               }
             });
+          }
+        },
+        {
+          "label": "From previous report", "icon": Icons.edit_document,
+          "onTap": () async {
+            final result = await context.push<ReportModel>('/reportPicker');
+            if(result != null){
+              provider.loadFromReport(reportModel: result);
+            }
           }
         },
         {"label": "New Report", "icon": Icons.refresh, "onTap": () {
@@ -184,7 +218,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
             prefilledReport = false;
             pumpRows = [{"start": 0, "end": 0, "total": 0}];
           });
-        }}
+        }},
       ],
       itemBuilder: (item) => SpeedDialChild(
         child: Icon(item['icon'], color: Colors.white),

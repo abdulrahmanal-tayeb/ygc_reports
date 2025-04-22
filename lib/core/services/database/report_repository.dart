@@ -138,6 +138,29 @@ class ReportRepository {
     // Get or insert station
     int stationId = await _getOrInsertStation(report.stationName);
 
+    // Normalize date (remove time part)
+    final dateOnly = DateTime(report.date.year, report.date.month, report.date.day);
+    final dateString = dateOnly.toIso8601String().substring(0, 10); // 'YYYY-MM-DD'
+
+    // Check for existing report on the same date
+    final existing = await db.query(
+      'reports',
+      where: "date LIKE ?",
+      whereArgs: ['$dateString%'], // Match any time on the same date
+      limit: 1,
+    );
+
+    // If exists, delete it
+    if (existing.isNotEmpty) {
+      final id = existing.first['id'] as int;
+      await db.delete(
+        'reports',
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+    }
+
+    // Insert the new report
     return await db.insert(
       'reports',
       _reportToMap(report, stationId),
@@ -183,6 +206,13 @@ class ReportRepository {
       'reports',
       where: 'id = ?',
       whereArgs: [id],
+    );
+  }
+
+  Future<void> deleteReports() async {
+    final db = await database;
+    await db.delete(
+      'reports',
     );
   }
 

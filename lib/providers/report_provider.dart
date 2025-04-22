@@ -56,6 +56,9 @@ class ReportProvider extends ChangeNotifier {
       case 'notes':
         model.notes = value;
         break;
+      case 'isEmptying':
+        model.isEmptying = value;
+        break;
       case 'workerName':
         model.workerName = value;
         break;
@@ -88,49 +91,100 @@ class ReportProvider extends ChangeNotifier {
     }
   }
 
-  Future<List<Map<String, int>>?> loadFromLastReport() async {
-    final Map<String, dynamic>? lastReport = await reportRepository.latestReport();
-    if(lastReport == null) return [];
-    List<Map<String, int>>? pumpReadings;
-    List<Map<String, int>>? storedReadings = _decodePumpReadings(lastReport['pumpsReadings']);
-    if(storedReadings != null){
-      pumpReadings = storedReadings.map((reading){
-        return {"start": reading["end"] ?? 0, "end": 0, "total": 0};
-      }).toList();
+  /// Loads the “previous” report (either passed in, or fetched from the repo)
+  /// and prepares a fresh list of pump‑readings where each new `start` is the
+  /// old `end`, and both `end` and `total` are 0.
+  Future<List<Map<String, int>>> loadFromReport({
+    Map<String, dynamic>? reportMap,
+    ReportModel? reportModel,
+  }) async {
+    // Case 1: If a model is already provided, use it directly
+    if (reportModel != null) {
+      model = reportModel;
+      notifyListeners();
+      return model.pumpsReadings ?? [];
     }
 
+    // Case 2: Otherwise, get the raw map from input or database
+    final raw = reportMap ?? await reportRepository.latestReport();
+    if (raw == null) return [];
+
+    // Decode old pump readings into List<Map<String, int>>
+    final pr = raw['pumpsReadings'];
+    final List<Map<String, int>> oldReadings = () {
+      if (pr is List) {
+        try {
+          return pr.cast<Map<String, int>>();
+        } catch (_) {
+          return pr
+              .map<Map<String, int>>((e) => Map<String, int>.from(e as Map))
+              .toList();
+        }
+      }
+      if (pr is String) {
+        return _decodePumpReadings(pr) ?? <Map<String, int>>[];
+      }
+      return <Map<String, int>>[];
+    }();
+
+    // Build the “prefilled” pumpRows
+    final newReadings = oldReadings
+        .map((r) => {
+              'start': r['end'] ?? 0,
+              'end': 0,
+              'total': 0,
+            })
+        .toList();
+
+    // Normalize the date field
+    final dateField = raw['date'];
+    final DateTime dateValue = dateField is String
+        ? DateTime.tryParse(dateField) ?? DateTime.now()
+        : dateField is DateTime
+            ? dateField
+            : DateTime.now();
+
+    // Normalize begin/end times
+    TimeOfDay parseTime(dynamic t) {
+      if (t is String) return parseTime(t);
+      if (t is Map<String, dynamic>) {
+        final h = t['hour'] as int? ?? 0;
+        final m = t['minute'] as int? ?? 0;
+        return TimeOfDay(hour: h, minute: m);
+      }
+      return const TimeOfDay(hour: 0, minute: 0);
+    }
+
+    final begin = parseTime(raw['beginTime']);
+    final end = parseTime(raw['endTime']);
+
+    // Rebuild the model from raw map
     model = ReportModel(
-      stationName: lastReport['stationName'] as String,
-      // Add all other fields from lastReport appropriately, e.g.
-      tankLoad: lastReport['remainingLoad'] ?? 0,
-      inboundAmount: 0,
-      totalLoad: lastReport["remainingLoad"] ?? 0,
-      remainingLoad: 0,
-      overflow: 0,
-      underflow: 0,
-      filledForPeople: 0,
-      tanksForPeople: 0,
-      filledForBuses: 0,
-      totalConsumed: 0,
-      notes: '',
-      workerName: lastReport['workerName'] ?? '',
-      representativeName: lastReport['representativeName'] ?? '',
-      date: DateTime.now(),
-      beginTime: _parseTime(lastReport['beginTime']),
-      endTime: _parseTime(lastReport['endTime']),
-      pumpsReadings: pumpReadings,
-      workerSignature: lastReport['workerSignature'],
-      representativeSignature: lastReport['representativeSignature'],
+      stationName: raw['stationName'] as String? ?? '',
+      remainingLoad: raw['remainingLoad'] as int? ?? 0,
+      date: dateValue,
+      beginTime: begin,
+      endTime: end,
+      pumpsReadings: newReadings,
+      inboundAmount: raw['inboundAmount'] as int? ?? 0,
+      totalLoad: raw['totalLoad'] as int? ?? 0,
+      overflow: raw['overflow'] as int? ?? 0,
+      underflow: raw['underflow'] as int? ?? 0,
+      filledForPeople: raw['filledForPeople'] as int? ?? 0,
+      tanksForPeople: raw['tanksForPeople'] as int? ?? 0,
+      filledForBuses: raw['filledForBuses'] as int? ?? 0,
+      totalConsumed: raw['totalConsumed'] as int? ?? 0,
+      notes: raw['notes'] as String? ?? '',
+      workerName: raw['workerName'] as String? ?? '',
+      representativeName: raw['representativeName'] as String? ?? '',
+      workerSignature: raw['workerSignature'],
+      representativeSignature: raw['representativeSignature'],
     );
+
     notifyListeners();
-    return pumpReadings;
+    return newReadings;
   }
 
-  TimeOfDay _parseTime(String? timeStr) {
-    if (timeStr == null) return const TimeOfDay(hour: 8, minute: 0);
-    final parts = timeStr.split(':');
-    return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
-  }
 
   List<Map<String, int>>? _decodePumpReadings(String? jsonStr) {
     if (jsonStr == null) return null;

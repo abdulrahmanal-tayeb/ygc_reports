@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui';
 import 'package:flutter/foundation.dart';
@@ -33,6 +34,10 @@ Future<void> generateReport({
     // Load Arabic font from assets
     final fontData = await rootBundle.load('assets/fonts/cairo/Cairo-Regular.ttf');
     final arabicFont = pw.Font.ttf(fontData);
+    if(model.isEmptying){
+      emptyingReport(model);
+    }
+
     final ReportPrinter reportPrinter = ReportPrinter(font: arabicFont, data: model, fileType: fileType);
 
     pdf.addPage(
@@ -128,6 +133,20 @@ Future<void> saveAndShareImage(BuildContext context, Uint8List pdfBytes, String 
     );
      
   }
+}
+
+void emptyingReport(ReportModel model){
+  if(model.remainingLoad == 0) return; // because it is already correct, and there is no overflow nor underflow.
+
+  if(model.remainingLoad < 0) { // Meaning that the tank has load, but the report shows that it hasn't = overflow
+    model.overflow = model.remainingLoad.abs();
+    model.notes = "تمت تصفية الخزان، ووفقًا للتقارير فإن الكمية المتبقية فيه تبلغ ${max(0, model.remainingLoad)} لتر، في حين أن الكمية الفعلية في الخزان تختلف عن ذلك ولا يزال يحتوي على كمية من الغاز.";
+  } else { // Meaning that the tank is empty, but the report shows it has load = underflow, 
+    model.underflow = model.remainingLoad.abs();
+    model.notes = "تمت تصفية الخزان، ووفقًا للتقارير، فإن الكمية المتبقية في الخزان تبلغ ${max(0, model.remainingLoad)} لتر، في حين أن الخزان قد نفد بالكامل فعليًا.";
+
+  }
+  model.remainingLoad = 0; // Reset the `actual` remaining load.
 }
 
 Future<Uint8List?> convertPdfToImage(Uint8List pdfBytes) async {

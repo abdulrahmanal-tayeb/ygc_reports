@@ -31,6 +31,7 @@ class ReportModel {
 
   Uint8List? workerSignature;
   Uint8List? representativeSignature;
+  bool isEmptying;
 
   ReportModel({
     this.stationName = '',
@@ -51,6 +52,7 @@ class ReportModel {
     this.filledForBuses = 0,
     this.totalConsumed = 0,
     this.representativeName = '',
+    this.isEmptying = false,
     this.representativeSignature,
     this.workerSignature,
   })  : date = date ?? DateTime.now(),
@@ -66,6 +68,7 @@ class ReportModel {
       'endTime': {'hour': endTime.hour, 'minute': endTime.minute},
       'pumpsReadings': pumpsReadings,
       'remainingLoad': remainingLoad,
+      'isEmptying': isEmptying,
       'workerName': workerName,
     };
   }
@@ -88,6 +91,7 @@ class ReportModel {
       pumpsReadings: (json['pumpsReadings'] as List<dynamic>?)
           ?.map((e) => Map<String, int>.from(e as Map))
           .toList(),
+      isEmptying: (json['isEmptying'] as bool?) ?? false,
       totalConsumed: json['totalConsumed'] as int? ?? 0,
       remainingLoad: json['remainingLoad'] as int? ?? 0,
       overflow: json['overflow'] as int? ?? 0,

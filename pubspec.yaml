@@ -49,6 +49,7 @@ dependencies:
   flutter_pdfview: ^1.4.0+1
   sqflite: ^2.4.1
   flutter_speed_dial: ^7.0.0
+  open_filex: ^4.7.0
 
 dev_dependencies:
   flutter_test:

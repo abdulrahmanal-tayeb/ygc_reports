@@ -1,7 +1,4 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
-import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:ygc_reports/core/constants/report_type.dart';
 import 'package:ygc_reports/models/report_model.dart';
@@ -311,44 +308,44 @@ class ReportPrinter {
   List<pw.Widget> _notes(){
     final double y = 565;
     
-    // Checking this only because all other fields depends on it.
-    if(data.filledForPeople == 0) return [];
-
     return [
-      pw.Positioned(
-        right: 237,
-        top: y,
-        child: pw.Container(
-          width: 55,
-          height: 15,
-          child: pw.Center(
-            child: arabicText(data.tanksForPeople.toString()), // or any function that returns pw.Text
+      if(data.filledForPeople > 0) 
+        ...[
+          pw.Positioned(
+            right: 237,
+            top: y,
+            child: pw.Container(
+              width: 55,
+              height: 15,
+              child: pw.Center(
+                child: arabicText(data.tanksForPeople.toString()), // or any function that returns pw.Text
+              ),
+            ),
           ),
-        ),
-      ),
-      pw.Positioned(
-        right: 343,
-        top: y,
-        child: pw.Container(
-          width: 52,
-          height: 15,
-          child: pw.Center(
-            child: arabicText(data.filledForPeople.toString()), // or any function that returns pw.Text
+          pw.Positioned(
+            right: 343,
+            top: y,
+            child: pw.Container(
+              width: 52,
+              height: 15,
+              child: pw.Center(
+                child: arabicText(data.filledForPeople.toString()), // or any function that returns pw.Text
+              ),
+            ),
           ),
-        ),
-      ),
 
-      pw.Positioned(
-        right: 237,
-        top: y + 22,
-        child: pw.Container(
-          width: 55,
-          height: 15,
-          child: pw.Center(
-            child: arabicText(data.filledForBuses.toString()), // or any function that returns pw.Text
+          pw.Positioned(
+            right: 237,
+            top: y + 22,
+            child: pw.Container(
+              width: 55,
+              height: 15,
+              child: pw.Center(
+                child: arabicText(data.filledForBuses.toString()), // or any function that returns pw.Text
+              ),
+            ),
           ),
-        ),
-      ),
+        ],
 
       if(data.notes.isNotEmpty)
         pw.Positioned(
@@ -429,6 +426,7 @@ class ReportPrinter {
   }
 
   List<pw.Widget> _footer(){
+    return []; // Temporarily
     return [
 
       // On images, it will be useless because it won't have enough quality to be scanned.

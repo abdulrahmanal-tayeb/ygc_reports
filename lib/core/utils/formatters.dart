@@ -23,3 +23,9 @@ String formatTimeOfDay(TimeOfDay time) {
   final suffix = time.period == DayPeriod.am ? 'صباحا' : 'مساء';
   return '$hour $suffix';
 }
+
+TimeOfDay parseTime(String? timeStr) {
+  if (timeStr == null) return const TimeOfDay(hour: 8, minute: 0);
+  final parts = timeStr.split(':');
+  return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+}

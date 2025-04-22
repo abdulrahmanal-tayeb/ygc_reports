@@ -91,6 +91,10 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
     }
   }
 
+  void openFile(ReportFile file){
+    OpenFilex.open(file.path);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -128,9 +132,7 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
                     mainAxisSize: MainAxisSize.min, // This ensures the Row doesn't expand
                     children: [
                       IconButton(
-                        onPressed: () async {
-                          OpenFilex.open(file.path);
-                        },
+                        onPressed: () => openFile(file),
                         icon: const Icon(Icons.share),
                       ),
                       IconButton(
@@ -150,7 +152,7 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
                     'Modified: ${file.modified.toLocal().toString().split('.').first}',
                   ),
                   onTap: () {
-                    // Implement file opening logic here
+                    openFile(file);
                   },
                 );
               },

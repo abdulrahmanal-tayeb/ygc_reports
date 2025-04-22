@@ -3,8 +3,6 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pdf/pdf.dart';
-import 'package:printing/printing.dart';
 import 'package:provider/provider.dart';
 import 'package:ygc_reports/core/constants/report_type.dart';
 import 'package:ygc_reports/core/utils/validators.dart';
@@ -17,6 +15,7 @@ import 'package:ygc_reports/widgets/collapsable.dart';
 import 'package:ygc_reports/widgets/floating_actions.dart';
 import 'package:ygc_reports/widgets/focus_text_field.dart';
 import 'package:ygc_reports/widgets/time_input_field.dart';
+
 
 class CreateReportScreen extends StatelessWidget {
   const CreateReportScreen({super.key});
@@ -77,7 +76,6 @@ class _CreateReportFormState extends State<CreateReportForm> {
     provider.notify();
   }
 
-
   ReportModel? updateDependantFields(ReportProvider provider) {
     final ReportModel model = provider.model;
     model.pumpsReadings = pumpRows;
@@ -117,6 +115,33 @@ class _CreateReportFormState extends State<CreateReportForm> {
     }
 
     return null; // ✅ valid
+  }
+
+  bool validate(ReportModel model) {
+    if (
+      model.stationName.trim().length <= 1
+      ||
+      model.workerName.trim().length <= 1
+      ||
+      model.representativeName.trim().length <= 1
+      ||
+      (model.pumpsReadings == null || model.pumpsReadings!.isEmpty)
+    ) {
+      return false;
+    }
+    
+    return true;
+  }
+
+  void prefillReport(
+    List<Map<String, int>>? pumpReadings
+  )  {
+    setState(() {
+      prefilledReport = true;
+      if(pumpReadings != null && pumpReadings.isNotEmpty){
+        pumpRows = pumpReadings;
+      }
+    });
   }
 
   @override
@@ -180,7 +205,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
               SizedBox(
                 width: MediaQuery.of(context).size.width,
                 child: ElevatedButton(
-                  onPressed: () => _generateReport(provider), 
+                  onPressed: validate(provider.model)? () => _generateReport(provider) : null, 
                   child: const Text("Create")
                 )
               )
@@ -194,13 +219,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
     return FloatingActions<Map<String, dynamic>>(
       options: [
         {"label": "From last report", "icon": Icons.history, "onTap": () async {
-            List<Map<String, int>>? pumpReadings = await provider.loadFromReport();
-            setState(() {
-              prefilledReport = true;
-              if(pumpReadings.isNotEmpty){
-                pumpRows = pumpReadings;
-              }
-            });
+            prefillReport(await provider.loadFromReport());
           }
         },
         {
@@ -208,7 +227,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
           "onTap": () async {
             final result = await context.push<ReportModel>('/reportPicker');
             if(result != null){
-              provider.loadFromReport(reportModel: result);
+              prefillReport(await provider.loadFromReport(reportModel: result));
             }
           }
         },
@@ -332,7 +351,6 @@ class _CreateReportFormState extends State<CreateReportForm> {
 
   // --- Pump Readings Section ---
   Widget _buildPumpReadingsSection(BuildContext context, ReportProvider provider, ReportModel model) {
-
     return buildSection(
       title: 'Pump Readings',
       children: [

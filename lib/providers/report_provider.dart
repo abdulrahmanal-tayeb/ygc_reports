@@ -100,7 +100,11 @@ class ReportProvider extends ChangeNotifier {
   }) async {
     // Case 1: If a model is already provided, use it directly
     if (reportModel != null) {
+      debugPrint("REPORT MODEL IS THIS THIS THIS THIS: ${reportModel.pumpsReadings.runtimeType}");
       model = reportModel;
+      model.tankLoad = model.remainingLoad;
+      model.pumpsReadings = getNewReadings(model.pumpsReadings);
+      model.resetDependent();
       notifyListeners();
       return model.pumpsReadings ?? [];
     }
@@ -110,31 +114,7 @@ class ReportProvider extends ChangeNotifier {
     if (raw == null) return [];
 
     // Decode old pump readings into List<Map<String, int>>
-    final pr = raw['pumpsReadings'];
-    final List<Map<String, int>> oldReadings = () {
-      if (pr is List) {
-        try {
-          return pr.cast<Map<String, int>>();
-        } catch (_) {
-          return pr
-              .map<Map<String, int>>((e) => Map<String, int>.from(e as Map))
-              .toList();
-        }
-      }
-      if (pr is String) {
-        return _decodePumpReadings(pr) ?? <Map<String, int>>[];
-      }
-      return <Map<String, int>>[];
-    }();
-
-    // Build the “prefilled” pumpRows
-    final newReadings = oldReadings
-        .map((r) => {
-              'start': r['end'] ?? 0,
-              'end': 0,
-              'total': 0,
-            })
-        .toList();
+    final newReadings = getNewReadings(raw['pumpsReadings']);
 
     // Normalize the date field
     final dateField = raw['date'];
@@ -181,10 +161,40 @@ class ReportProvider extends ChangeNotifier {
       representativeSignature: raw['representativeSignature'],
     );
 
+    model.resetDependent();
     notifyListeners();
     return newReadings;
   }
 
+
+  List<Map<String, int>> getNewReadings(dynamic readings){
+    final List<Map<String, int>> oldReadings = () {
+      if (readings is List) {
+        try {
+          return readings.cast<Map<String, int>>();
+        } catch (_) {
+          return readings
+              .map<Map<String, int>>((e) => Map<String, int>.from(e as Map))
+              .toList();
+        }
+      }
+      if (readings is String) {
+        return _decodePumpReadings(readings) ?? <Map<String, int>>[];
+      }
+      return <Map<String, int>>[];
+    }();
+
+    // Build the “prefilled” pumpRows
+    final newReadings = oldReadings
+        .map((r) => {
+              'start': r['end'] ?? 0,
+              'end': 0,
+              'total': 0,
+            })
+        .toList();
+
+    return newReadings;
+  }
 
   List<Map<String, int>>? _decodePumpReadings(String? jsonStr) {
     if (jsonStr == null) return null;

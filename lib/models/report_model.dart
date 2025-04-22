@@ -59,6 +59,20 @@ class ReportModel {
         beginTime = beginTime ?? const TimeOfDay(hour: 20, minute: 0),
         endTime = endTime ?? const TimeOfDay(hour: 20, minute: 0);
 
+
+  void resetDependent(){
+    inboundAmount = 0;
+    totalLoad = tankLoad;
+    totalConsumed = 0;
+    filledForBuses = 0;
+    filledForPeople = 0;
+    tanksForPeople = 0;
+    remainingLoad = 0;
+    overflow = 0;
+    underflow = 0;
+    notes = "";
+  }
+  
   /// --- 1) toJson
   Map<String, dynamic> toJson() {
     return {

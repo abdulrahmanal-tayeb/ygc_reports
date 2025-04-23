@@ -15,7 +15,9 @@ import 'package:ygc_reports/providers/report_provider.dart';
 import 'package:ygc_reports/widgets/collapsable.dart';
 import 'package:ygc_reports/widgets/floating_actions.dart';
 import 'package:ygc_reports/widgets/focus_text_field.dart';
+import 'package:ygc_reports/widgets/language_switcher.dart';
 import 'package:ygc_reports/widgets/time_input_field.dart';
+import 'package:flutter_gen/gen_l10n/l10n.dart'; // Generated localization file
 
 
 class CreateReportScreen extends StatelessWidget {
@@ -154,7 +156,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
     final provider = Provider.of<ReportProvider>(context);
     return Scaffold(
         appBar: AppBar(
-          title: Text('Create Report'),
+          title: Text("Create Report"),
           actions: [
             IconButton(
               onPressed: (){
@@ -169,6 +171,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
             Column(
               spacing: 5,
               children: [
+                LanguageSwitcher(),
                 Expanded(child: _buildForm(context, provider)),
                 Row(
                   children: [

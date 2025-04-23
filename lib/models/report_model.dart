@@ -32,6 +32,8 @@ class ReportModel {
   Uint8List? workerSignature;
   Uint8List? representativeSignature;
   bool isEmptying;
+  bool isDraft;
+  int? id;
 
   ReportModel({
     this.stationName = '',
@@ -39,6 +41,8 @@ class ReportModel {
     TimeOfDay? beginTime,
     TimeOfDay? endTime,
     this.tankLoad = 0,
+    this.isDraft = false,
+    this.id,
     this.inboundAmount = 0,
     this.totalLoad = 0,
     this.remainingLoad = 0,
@@ -84,6 +88,7 @@ class ReportModel {
       'remainingLoad': remainingLoad,
       'isEmptying': isEmptying,
       'workerName': workerName,
+      'id': id
     };
   }
 
@@ -95,6 +100,7 @@ class ReportModel {
         TimeOfDay(hour: t['hour'], minute: t['minute']);
 
     return ReportModel(
+      id: json['id'],
       stationName: json['stationName'] as String? ?? '',
       date: DateTime.parse(json['date'] as String),
       beginTime: _time(json['beginTime'] as Map<String, dynamic>),

@@ -43,6 +43,8 @@ class ReportRepository {
       CREATE TABLE reports (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         stationId INTEGER,
+        isDraft INTEGER DEFAULT 0,
+        isEmptying INTEGER DEFAULT 0,
         date TEXT,
         beginTime TEXT,
         endTime TEXT,
@@ -176,17 +178,21 @@ class ReportRepository {
   }
 
 
-  Future<List<ReportModel>> getAllReports() async {
+  Future<List<ReportModel>> getAllReports({bool drafts = false, bool returnAll = true}) async {
     final db = await database;
 
     final result = await db.rawQuery('''
       SELECT reports.*, stations.name as stationName 
       FROM reports
       LEFT JOIN stations ON reports.stationId = stations.id
+      ${returnAll? '' : "WHERE isDraft = ${drafts? 1 : 0}"}
       ORDER BY reports.date DESC
+      LIMIT 30
     ''');
-
-    return result.map(_mapToReport).toList();
+    debugPrint("IIIIIIIIIIIIID: ${result}");
+    final reports = result.map(_mapToReport).toList();
+    reports.sort((a, b) => (b.isDraft ? 1 : 0) - (a.isDraft ? 1 : 0));
+    return reports;
   }
 
   Future<int> updateReport(int id, ReportModel report) async {
@@ -220,6 +226,7 @@ class ReportRepository {
 
   Map<String, dynamic> _reportToMap(ReportModel report, int stationId) {
     return {
+      'id': report.id,
       'stationId': stationId,
       'date': report.date.toIso8601String(),
       'beginTime': '${report.beginTime.hour}:${report.beginTime.minute}',
@@ -230,6 +237,8 @@ class ReportRepository {
       'remainingLoad': report.remainingLoad,
       'overflow': report.overflow,
       'underflow': report.underflow,
+      'isEmptying': report.isEmptying ? 1 : 0,
+      'isDraft': report.isDraft? 1 : 0,
       'filledForPeople': report.filledForPeople,
       'tanksForPeople': report.tanksForPeople,
       'filledForBuses': report.filledForBuses,
@@ -248,6 +257,7 @@ class ReportRepository {
     final endParts = (map['endTime'] as String).split(':');
 
     return ReportModel(
+      id: map['id'],
       stationName: map['stationName'],
       date: DateTime.tryParse(map['date']) ?? DateTime.now(),
       beginTime: TimeOfDay(
@@ -258,6 +268,8 @@ class ReportRepository {
         hour: int.tryParse(endParts[0]) ?? 16,
         minute: int.tryParse(endParts[1]) ?? 0,
       ),
+      isEmptying: map['isEmptying'] == 1,
+      isDraft: map['isDraft'] == 1,
       tankLoad: map['tankLoad'] ?? 0,
       inboundAmount: map['inboundAmount'] ?? 0,
       totalLoad: map['totalLoad'] ?? 0,

@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 class Collapsable extends StatefulWidget{
   final String name;
   final Widget child;
+  final bool initialCollapsed;
   const Collapsable({
     super.key,
     required this.child,
+    this.initialCollapsed = true,
     this.name = "Section",
   });
 
@@ -21,10 +23,11 @@ class _CollapsableState extends State<Collapsable> with SingleTickerProviderStat
   @override
   void initState() {
     super.initState();
+    _isExpanded = !widget.initialCollapsed;
     _controller = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
-      value: 0, // Start collapsed.
+      value: widget.initialCollapsed? 0 : 1, // Start collapsed.
     );
     _sizeAnimation = CurvedAnimation(
       parent: _controller,

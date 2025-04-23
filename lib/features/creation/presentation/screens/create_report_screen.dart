@@ -5,6 +5,7 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:ygc_reports/core/constants/report_type.dart';
+import 'package:ygc_reports/core/services/database/report_repository.dart';
 import 'package:ygc_reports/core/utils/validators.dart';
 import 'package:ygc_reports/features/creation/presentation/utils/utils.dart';
 import 'package:ygc_reports/modals/share_type_sheet/share_type_sheet.dart';
@@ -118,14 +119,18 @@ class _CreateReportFormState extends State<CreateReportForm> {
   }
 
   bool validate(ReportModel model) {
+    if(model.pumpsReadings == null || model.pumpsReadings!.isEmpty){
+      model.pumpsReadings = pumpRows;
+    }
+
+    debugPrint("${model.pumpsReadings }");
     if (
       model.stationName.trim().length <= 1
       ||
       model.workerName.trim().length <= 1
       ||
       model.representativeName.trim().length <= 1
-      ||
-      (model.pumpsReadings == null || model.pumpsReadings!.isEmpty)
+      
     ) {
       return false;
     }
@@ -231,6 +236,14 @@ class _CreateReportFormState extends State<CreateReportForm> {
             }
           }
         },
+        {"label": "Save Draft", "icon": Icons.save_as_rounded, "onTap": () {
+          final report = provider.model;
+          report.isDraft = true;
+          reportRepository.insertReport(report);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Saved as Draft")),
+          );
+        }},
         {"label": "New Report", "icon": Icons.refresh, "onTap": () {
           provider.clear(notify: false);
           setState(() {
@@ -239,6 +252,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
           });
         }},
       ],
+
       itemBuilder: (item) => SpeedDialChild(
         child: Icon(item['icon'], color: Colors.white),
         backgroundColor: Colors.black,
@@ -270,6 +284,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
   // --- Metadata Section ---
   Widget _buildMetadataSection(BuildContext context, ReportProvider provider, ReportModel model) {
     return buildSection(
+      initialCollapsed: false,
       title: 'Metadata',
       children: [
         _spaced(_buildField(
@@ -530,9 +545,10 @@ class _CreateReportFormState extends State<CreateReportForm> {
     );
   }
 
-  Widget buildSection({required String title, required List<Widget> children}) {
+  Widget buildSection({required String title, required List<Widget> children, bool initialCollapsed = true}) {
     return Collapsable(
       name: title,
+      initialCollapsed: initialCollapsed,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

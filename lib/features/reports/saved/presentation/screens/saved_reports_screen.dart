@@ -26,12 +26,13 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
   }
 
   Future<List<ReportFile>> _loadReportFiles() async {
-    final Directory? baseDir = await getExternalStorageDirectory();
-    if (baseDir == null) return [];
+    final pdfDir = await getFilePath<Directory>(ReportType.pdf);
+    final imageDir = await getFilePath<Directory>(ReportType.image);
 
-    final pdfDir = Directory('${baseDir.path}/YGC Reports/reports/pdf');
-    final imageDir = Directory('${baseDir.path}/YGC Reports/reports/images');
-
+    if(pdfDir == null || imageDir == null){
+      return [];
+    }
+    
     final List<ReportFile> files = [];
 
     if (await pdfDir.exists()) {

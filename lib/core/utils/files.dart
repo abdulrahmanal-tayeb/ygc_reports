@@ -17,18 +17,28 @@ Future<void> deleteReportFromPath(String path) async {
   }
 }
 
-Future<String?> getFilePath(ReportType reportType) async {
-  Directory? directory = await getExternalDirectory(reportType == ReportType.pdf? "documents" : "images");
-  if(directory != null){
-    final reportsDir = Directory("${directory.path}/YGC Reports/${reportType == ReportType.pdf? "pdf" : "images"}");
-    debugPrint("REPORTS PATH PATH PATH: ${reportsDir.path}");
-    if (!await reportsDir.exists()) {
-      await reportsDir.create(recursive: true);
-    }
-    return reportsDir.path;
+
+Future<T?> getFilePath<T>(ReportType reportType) async {
+  final baseDir = await getExternalDirectory(
+    reportType == ReportType.pdf ? "documents" : "images",
+  );
+  if (baseDir == null) return null;
+
+  final reportsDir = Directory(
+    "${baseDir.path}/YGC Reports/${reportType == ReportType.pdf ? "pdf" : "images"}",
+  );
+  if (!await reportsDir.exists()) {
+    await reportsDir.create(recursive: true);
   }
-  return null;
+
+  if (T == Directory) {
+    // caller asked explicitly for a Directory
+    return reportsDir as T;
+  }
+  // default (any T ≠ Directory) → return the path string
+  return reportsDir.path as T;
 }
+
 
 Future<Directory?> getExternalDirectory(String type) async {
   if (Platform.isAndroid) {

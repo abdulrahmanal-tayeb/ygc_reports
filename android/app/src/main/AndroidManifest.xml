@@ -10,7 +10,7 @@
     <application
         android:label="YGC Reports"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_status">
         <activity
             android:name=".MainActivity"
             android:exported="true"

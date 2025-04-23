@@ -100,6 +100,15 @@ class ReportProvider extends ChangeNotifier {
   }) async {
     // Case 1: If a model is already provided, use it directly
     if (reportModel != null) {
+
+      // If it is a draft, then return it as is.
+      if(reportModel.isDraft){
+        model = reportModel;
+        model.isDraft = false;
+        notifyListeners();
+        return model.pumpsReadings ?? [];
+      }
+
       debugPrint("REPORT MODEL IS THIS THIS THIS THIS: ${reportModel.pumpsReadings.runtimeType}");
       model = reportModel;
       model.tankLoad = model.remainingLoad;

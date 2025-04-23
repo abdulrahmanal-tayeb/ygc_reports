@@ -70,9 +70,10 @@ class _ReportPickerScreenState extends State<ReportPickerScreen> {
                 if (drafts.isNotEmpty)
                   SliverAppBar(
                     backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                    expandedHeight: 0,
+                    expandedHeight: 50,
                     pinned: false,
                     floating: false,
+                    title: Text("Pick a Report"),
                     flexibleSpace: const SizedBox.shrink(), // no content
                   ),
               ];
@@ -105,8 +106,8 @@ class _ReportPickerScreenState extends State<ReportPickerScreen> {
                   final draft = drafts[index - draftStart];
                   final formattedDate = formatDate(draft.date);
                   return ListTile(
-                    title: Text('[DRAFT] ${draft.stationName}'),
-                    subtitle: Text('Date: $formattedDate'),
+                    title: Text(draft.stationName),
+                    subtitle: Text(formattedDate),
                     trailing: deleteButton(draft.id, true),
                     onTap: () => context.pop<ReportModel>(draft),
                   );

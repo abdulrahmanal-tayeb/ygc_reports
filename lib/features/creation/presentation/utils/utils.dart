@@ -11,6 +11,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:ygc_reports/core/constants/report_type.dart';
 import 'package:ygc_reports/core/services/database/report_repository.dart';
+import 'package:ygc_reports/core/utils/files.dart';
 import 'package:ygc_reports/core/utils/formatters.dart';
 import 'package:ygc_reports/features/creation/presentation/utils/report_printer.dart';
 import 'package:ygc_reports/modals/saved_report_preview/saved_report_preview.dart';
@@ -64,7 +65,6 @@ Future<void> generateReport({
 
     final Uint8List pdfBytes = await pdf.save();
     final Future<void> Function(BuildContext, Uint8List, String, {required ReportModel model}) handlingFunction = (fileType == ReportType.pdf)?  saveAndSharePdf : saveAndShareImage;
-    reportRepository.insertReport(model);
     await handlingFunction(context, pdfBytes, "محطة ${model.stationName} - ${formatDate(model.date).replaceAll(r'/', '-')}", model: model);
 
   } else {
@@ -77,23 +77,16 @@ Future<void> saveAndSharePdf(BuildContext context, Uint8List pdfBytes, String fi
   // Get the internal storage directory (application documents directory)
 
   // Get the internal storage directory
-  Directory? directory = await getExternalStorageDirectory();
-  if (directory != null) {
-    final reportsDir = Directory("${directory.path}/YGC Reports/reports/pdf");
-
-    if (!await reportsDir.exists()) {
-      await reportsDir.create(recursive: true);
-    }
-
-    final filePath = "${reportsDir.path}/$filename.pdf";
+  String? path = await getFilePath(ReportType.pdf);
+  if (path != null) {
+    final filePath = "$path/$filename.pdf";
     final file = File(filePath);
-
-
     await showReportPreview(
       context, 
       path: filePath,
       onShare: ({bool save = true}) async {
         if(save){
+          reportRepository.insertReport(model);
           await file.writeAsBytes(pdfBytes);
         }
         await Share.shareXFiles(
@@ -106,12 +99,8 @@ Future<void> saveAndSharePdf(BuildContext context, Uint8List pdfBytes, String fi
 }
 
 Future<void> saveAndShareImage(BuildContext context, Uint8List pdfBytes, String filename, {required ReportModel model}) async {
-  Directory? directory = await getExternalStorageDirectory();
-  if (directory != null) {
-    final reportsDir = Directory("${directory.path}/YGC Reports/reports/images");
-    if (!await reportsDir.exists()) {
-      await reportsDir.create(recursive: true);
-    }
+  String? path = await getFilePath(ReportType.image);
+  if (path != null) {
     final Uint8List? imageBytes = await convertPdfToImage(pdfBytes);
 
     if(imageBytes == null){
@@ -119,7 +108,7 @@ Future<void> saveAndShareImage(BuildContext context, Uint8List pdfBytes, String 
       return;
     }
 
-    final filePath = "${reportsDir.path}/$filename.png";
+    final filePath = "$path/$filename.png";
     final file = File(filePath);
 
     await showReportPreview(
@@ -127,6 +116,7 @@ Future<void> saveAndShareImage(BuildContext context, Uint8List pdfBytes, String 
       data: imageBytes,
       onShare: ({bool save = true}) async {
         if(save){
+          reportRepository.insertReport(model);
           await file.writeAsBytes(imageBytes);
         }
         await Share.shareXFiles(

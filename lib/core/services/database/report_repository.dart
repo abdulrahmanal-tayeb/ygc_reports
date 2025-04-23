@@ -147,8 +147,8 @@ class ReportRepository {
     // Check for existing report on the same date
     final existing = await db.query(
       'reports',
-      where: "date LIKE ?",
-      whereArgs: ['$dateString%'], // Match any time on the same date
+      where: "date LIKE ? AND isDraft = ?",
+      whereArgs: ['$dateString%', report.isDraft? 1 : 0], // Match any time on the same date
       limit: 1,
     );
 

@@ -428,7 +428,6 @@ class ReportPrinter {
   List<pw.Widget> _footer(){
     return []; // Temporarily
     return [
-
       // On images, it will be useless because it won't have enough quality to be scanned.
       if(fileType == ReportType.pdf && generateQR)
         pw.Positioned(

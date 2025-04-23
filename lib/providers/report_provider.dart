@@ -98,81 +98,23 @@ class ReportProvider extends ChangeNotifier {
     Map<String, dynamic>? reportMap,
     ReportModel? reportModel,
   }) async {
+
+    final ReportModel report = reportModel ?? await reportRepository.latestReport();
     // Case 1: If a model is already provided, use it directly
-    if (reportModel != null) {
-
-      // If it is a draft, then return it as is.
-      if(reportModel.isDraft){
-        model = reportModel;
-        model.isDraft = false;
-        notifyListeners();
-        return model.pumpsReadings ?? [];
-      }
-
-      debugPrint("REPORT MODEL IS THIS THIS THIS THIS: ${reportModel.pumpsReadings.runtimeType}");
-      model = reportModel;
-      model.tankLoad = model.remainingLoad;
-      model.pumpsReadings = getNewReadings(model.pumpsReadings);
-      model.resetDependent();
+    // If it is a draft, then return it as is.
+    if(report.isDraft){
+      model = report;
+      model.isDraft = false;
       notifyListeners();
       return model.pumpsReadings ?? [];
     }
 
-    // Case 2: Otherwise, get the raw map from input or database
-    final raw = reportMap ?? await reportRepository.latestReport();
-    if (raw == null) return [];
-
-    // Decode old pump readings into List<Map<String, int>>
-    final newReadings = getNewReadings(raw['pumpsReadings']);
-
-    // Normalize the date field
-    final dateField = raw['date'];
-    final DateTime dateValue = dateField is String
-        ? DateTime.tryParse(dateField) ?? DateTime.now()
-        : dateField is DateTime
-            ? dateField
-            : DateTime.now();
-
-    // Normalize begin/end times
-    TimeOfDay parseTime(dynamic t) {
-      if (t is String) return parseTime(t);
-      if (t is Map<String, dynamic>) {
-        final h = t['hour'] as int? ?? 0;
-        final m = t['minute'] as int? ?? 0;
-        return TimeOfDay(hour: h, minute: m);
-      }
-      return const TimeOfDay(hour: 0, minute: 0);
-    }
-
-    final begin = parseTime(raw['beginTime']);
-    final end = parseTime(raw['endTime']);
-
-    // Rebuild the model from raw map
-    model = ReportModel(
-      stationName: raw['stationName'] as String? ?? '',
-      remainingLoad: raw['remainingLoad'] as int? ?? 0,
-      date: dateValue,
-      beginTime: begin,
-      endTime: end,
-      pumpsReadings: newReadings,
-      inboundAmount: raw['inboundAmount'] as int? ?? 0,
-      totalLoad: raw['totalLoad'] as int? ?? 0,
-      overflow: raw['overflow'] as int? ?? 0,
-      underflow: raw['underflow'] as int? ?? 0,
-      filledForPeople: raw['filledForPeople'] as int? ?? 0,
-      tanksForPeople: raw['tanksForPeople'] as int? ?? 0,
-      filledForBuses: raw['filledForBuses'] as int? ?? 0,
-      totalConsumed: raw['totalConsumed'] as int? ?? 0,
-      notes: raw['notes'] as String? ?? '',
-      workerName: raw['workerName'] as String? ?? '',
-      representativeName: raw['representativeName'] as String? ?? '',
-      workerSignature: raw['workerSignature'],
-      representativeSignature: raw['representativeSignature'],
-    );
-
+    model = report;
+    model.tankLoad = model.remainingLoad;
+    model.pumpsReadings = getNewReadings(model.pumpsReadings);
     model.resetDependent();
     notifyListeners();
-    return newReadings;
+    return model.pumpsReadings ?? [];
   }
 
 

@@ -14,7 +14,7 @@
         android:usesCleartextTraffic="true"
         android:label="YGC Reports"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_status">
+        android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
             android:exported="true"

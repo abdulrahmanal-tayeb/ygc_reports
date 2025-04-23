@@ -69,7 +69,7 @@ class ReportRepository {
     ''');
   }
 
-  Future<Map<String, dynamic>?> latestReport() async {
+  Future<ReportModel> latestReport() async {
     final db = await database;
     final result = await db.rawQuery('''
       SELECT reports.*, stations.name AS stationName, stations.address AS stationAddress, stations.area AS stationArea
@@ -78,8 +78,8 @@ class ReportRepository {
       ORDER BY reports.id DESC
       LIMIT 1
     ''');
-
-    return result.first;
+    
+    return _mapToReport(result.first);
   }
 
   // ---------------------- Stations ----------------------

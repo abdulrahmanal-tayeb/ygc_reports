@@ -156,7 +156,6 @@ class ReportRepository {
 
     // Get or insert station
     int stationId = await _getOrInsertStation(report.stationName);
-    debugPrint("IS DRAAAAAAAFT: ${report.isDraft}");
     // Normalize date (remove time part)
     final dateOnly = DateTime(report.date.year, report.date.month, report.date.day);
     final dateString = dateOnly.toIso8601String().substring(0, 10); // 'YYYY-MM-DD'

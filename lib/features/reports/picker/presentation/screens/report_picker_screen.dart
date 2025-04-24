@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:ygc_reports/core/services/database/report_repository.dart';
 import 'package:ygc_reports/core/utils/formatters.dart';
 import 'package:ygc_reports/core/utils/local_helpers.dart';
+import 'package:ygc_reports/features/reports/picker/presentation/widgets/report_record_tile.dart';
 import 'package:ygc_reports/modals/delete_confirmation/delete_confirmation.dart';
 import 'package:ygc_reports/models/report_model.dart';
 
@@ -28,29 +29,26 @@ class _ReportPickerScreenState extends State<ReportPickerScreen> {
     });
   }
 
-  IconButton deleteButton(int? reportId, [bool isDraft = false]) {
-    return IconButton(
-      onPressed: reportId != null
-          ? () async {
-              if(
-                await showConfirmation(
-                  context,
-                  isDraft? context.loc.message_deleteDraft : context.loc.message_deleteReport,
-                  context.loc.message_deleteReportText
-                )
-              ){
-                await reportRepository.deleteReport(reportId);
-                _refreshReports();
-              }
-            }
-          : null,
-      icon: const Icon(Icons.delete),
-    );
+  void deleteReport(ReportModel report) async {
+    if(
+      await showConfirmation(
+        context,
+        report.isDraft? context.loc.message_deleteDraft : context.loc.message_deleteReport,
+        context.loc.message_deleteReportText
+      )
+    ){
+      await reportRepository.deleteReport(report.id!);
+      _refreshReports();
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(context.loc.pickReportScreenTitle),
+      ),
       body: FutureBuilder<List<ReportModel>>(
         future: _reportsFuture,
         builder: (context, snapshot) {
@@ -107,10 +105,10 @@ class _ReportPickerScreenState extends State<ReportPickerScreen> {
                 if (index >= draftStart && index < draftEnd) {
                   final draft = drafts[index - draftStart];
                   final formattedDate = formatDate(draft.date);
-                  return ListTile(
-                    title: Text(draft.stationName),
-                    subtitle: Text(formattedDate),
-                    trailing: deleteButton(draft.id, true),
+                  return ReportListTile(
+                    report: draft,
+                    formattedDate: formattedDate,
+                    onDelete: () => deleteReport(draft),
                     onTap: () => context.pop<ReportModel>(draft),
                   );
                 }
@@ -137,16 +135,10 @@ class _ReportPickerScreenState extends State<ReportPickerScreen> {
                 final reportIndex = index - draftEnd - (drafts.isNotEmpty && others.isNotEmpty ? 1 : 0);
                 final report = others[reportIndex];
                 final formattedDate = formatDate(report.date);
-                return ListTile(
-                  title: Text(report.stationName),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Date: $formattedDate'),
-                      Text('Remaining Load: ${report.remainingLoad}'),
-                    ],
-                  ),
-                  trailing: deleteButton(report.id),
+                return ReportListTile(
+                  report: report,
+                  formattedDate: formattedDate,
+                  onDelete: () => deleteReport(report),
                   onTap: () => context.pop<ReportModel>(report),
                 );
               },

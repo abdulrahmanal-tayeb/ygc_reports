@@ -167,7 +167,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<ReportProvider>(context);
-    final isRtl = Directionality.of(context) == TextDirection.rtl;
+    final isRtl = context.isRtl;
 
     return Scaffold(
         appBar: AppBar(

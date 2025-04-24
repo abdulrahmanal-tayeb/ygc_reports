@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:ygc_reports/core/constants/report_type.dart';
 import 'package:ygc_reports/core/utils/files.dart';
 import 'package:ygc_reports/core/utils/local_helpers.dart';
+import 'package:ygc_reports/features/reports/saved/presentation/widgets/report_file_tile.dart';
 import 'package:ygc_reports/modals/delete_confirmation/delete_confirmation.dart';
 import 'package:ygc_reports/models/report_file.dart';
 
@@ -121,45 +123,25 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
               itemCount: _reportFiles.length,
               itemBuilder: (context, index) {
                 final file = _reportFiles[index];
-                return ListTile(
-                  leading: Icon(
-                    file.type == ReportType.pdf
-                        ? Icons.picture_as_pdf
-                        : Icons.image,
-                    color: file.type == ReportType.pdf
-                        ? Colors.red
-                        : Colors.blue,
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min, // This ensures the Row doesn't expand
-                    children: [
-                      IconButton(
-                        onPressed: () => openFile(file),
-                        icon: const Icon(Icons.share),
-                      ),
-                      IconButton(
-                        onPressed: () async {
-                          final confirm = await showConfirmation(
-                            context,
-                            context.loc.message_deleteReport,
-                            context.loc.message_deleteReportText
-                          );
-                          if (confirm) {
-                            // Delete the report and update the list
-                            await _deleteReport(file);
-                          }
-                        },
-                        icon: const Icon(Icons.delete),
-                      ),
-                    ],
-                  ),
-                  title: Text(file.name),
-                  subtitle: Text(
-                    'Modified: ${file.modified.toLocal().toString().split('.').first}',
-                  ),
-                  onTap: () {
-                    openFile(file);
-                  },
+                return ReportFileTile(
+                  file: file, 
+                  onOpen: () {openFile(file);}, 
+                  onDelete: () async {
+                    final confirm = await showConfirmation(
+                      context,
+                      context.loc.message_deleteReport,
+                      context.loc.message_deleteReportText
+                    );
+                    if (confirm) {
+                      // Delete the report and update the list
+                      await _deleteReport(file);
+                    }
+                  }, 
+                  onShare: (){
+                    Share.shareXFiles(
+                      [XFile(file.path)]
+                    );
+                  }
                 );
               },
             );

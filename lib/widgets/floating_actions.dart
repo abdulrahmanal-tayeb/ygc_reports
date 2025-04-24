@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:ygc_reports/core/utils/local_helpers.dart';
 
 class FloatingActions<T> extends StatelessWidget {
   final List<T> options;
@@ -17,8 +18,8 @@ class FloatingActions<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isRtl = Directionality.of(context) == TextDirection.rtl;
-
+    final isRtl = context.isRtl;
+    
     return SpeedDial(
       icon: icon,
       activeIcon: activeIcon,

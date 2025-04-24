@@ -4,5 +4,5 @@ import 'package:flutter_gen/gen_l10n/l10n.dart';
 extension L10nHelper on BuildContext {
   AppLocalizations get loc => AppLocalizations.of(this)!;
   List<Locale> get supportedLocales => AppLocalizations.supportedLocales;
-  
+  bool get isRtl => Directionality.of(this) == TextDirection.rtl;
 }

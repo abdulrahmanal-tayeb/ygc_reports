@@ -97,12 +97,13 @@ class ReportProvider extends ChangeNotifier {
   Future<List<Map<String, int>>> loadFromReport({
     Map<String, dynamic>? reportMap,
     ReportModel? reportModel,
+    bool prepareForNextReport = false,
   }) async {
 
     final ReportModel report = reportModel ?? await reportRepository.latestReport();
     // Case 1: If a model is already provided, use it directly
     // If it is a draft, then return it as is.
-    if(report.isDraft){
+    if(report.isDraft || !prepareForNextReport){
       model = report;
       model.isDraft = false;
       notifyListeners();
@@ -110,6 +111,7 @@ class ReportProvider extends ChangeNotifier {
     }
 
     model = report;
+    model.date = DateTime.now();
     model.tankLoad = model.remainingLoad;
     model.pumpsReadings = getNewReadings(model.pumpsReadings);
     model.resetDependent();

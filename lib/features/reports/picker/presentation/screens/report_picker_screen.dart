@@ -33,9 +33,10 @@ class _ReportPickerScreenState extends State<ReportPickerScreen> {
       onPressed: reportId != null
           ? () async {
               if(
-                await showDeleteConfirmation(
+                await showConfirmation(
                   context,
-                  isDraft? context.loc.message_deleteDraft : context.loc.message_deleteReport
+                  isDraft? context.loc.message_deleteDraft : context.loc.message_deleteReport,
+                  context.loc.message_deleteReportText
                 )
               ){
                 await reportRepository.deleteReport(reportId);

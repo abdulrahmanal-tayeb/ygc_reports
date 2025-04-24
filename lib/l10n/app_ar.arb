@@ -13,16 +13,16 @@
   "signBelow": "اضف توقيعك تحت هنا",
 
   "message_draftSaved": "تم الحفظ كمسودة",
-  "message_noReports": "مافيش تقارير حالياً",
+  "message_noReports": "لاتوجد تقارير حالياً",
   "message_reportDeleted": "تم حذف التقرير",
   "message_deleteReport": "حذف التقرير",
   "message_deleteDraft": "حذف المسودة",
 
-  "error_required": "هذا الحقل لازم تعبّيه",
-  "error_positiveNumber": "لازم تحط رقم موجب",
-  "error_incorrectReading": "القراءة هذي مش صحيحة",
-  "error_onlyNumbers": "الأرقام بس مسموحة",
-  "error_numberLimitExceeded": "القيمة ما لازم تزيد عن {maxNumber}",
+  "error_required": "يجب تعبئة هذا الحقل",
+  "error_positiveNumber": "ارقام موجبة فقط",
+  "error_incorrectReading": "يجب ان تكون قراءة نهاية العمل اكبر من او تساوي قراءة بداية العمل",
+  "error_onlyNumbers": "يرجى ادخال ارقام صحيحة",
+  "error_numberLimitExceeded": " يجب ان لا تزيد القيمة عن{maxNumber}",
   "@error_numberLimitExceeded": {
     "placeholders": {
       "maxNumber": {}

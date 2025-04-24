@@ -139,7 +139,7 @@ class ReportRepository {
 
     // Get or insert station
     int stationId = await _getOrInsertStation(report.stationName);
-
+    debugPrint("IS DRAAAAAAAFT: ${report.isDraft}");
     // Normalize date (remove time part)
     final dateOnly = DateTime(report.date.year, report.date.month, report.date.day);
     final dateString = dateOnly.toIso8601String().substring(0, 10); // 'YYYY-MM-DD'
@@ -148,7 +148,7 @@ class ReportRepository {
     final existing = await db.query(
       'reports',
       where: "date LIKE ? AND isDraft = ?",
-      whereArgs: ['$dateString%', report.isDraft? 1 : 0], // Match any time on the same date
+      whereArgs: ['$dateString%', report.isDraft? '1' : '0'], // Match any time on the same date
       limit: 1,
     );
 
@@ -189,7 +189,7 @@ class ReportRepository {
       ORDER BY reports.date DESC
       LIMIT 30
     ''');
-    debugPrint("IIIIIIIIIIIIID: ${result}");
+
     final reports = result.map(_mapToReport).toList();
     reports.sort((a, b) => (b.isDraft ? 1 : 0) - (a.isDraft ? 1 : 0));
     return reports;

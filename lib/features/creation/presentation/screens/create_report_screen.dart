@@ -70,6 +70,16 @@ class _CreateReportFormState extends State<CreateReportForm> {
     final Map<String, int> row = pumpRows[index];
     row[key] = reading;
     row["total"] = (row["end"] ?? 0) - (row["start"] ?? 0);
+    
+    if(row["end"] != null && row["end"]! > 0){
+      if((row["end"]!) < (row["start"] ?? 0)){
+        row["error"] = 1;
+      }
+      else {
+        row["error"] = 0;
+      }
+    } 
+
     pumpRows[index] = row;
     setState((){});
   }
@@ -414,7 +424,19 @@ class _CreateReportFormState extends State<CreateReportForm> {
                       ),
                   ],
                 ),
-                if (pumpRows[index]["total"] != null)
+
+                if(pumpRows[index]["error"] == 1)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                    child: Text(
+                      context.loc.error_incorrectReading,
+                      style: const TextStyle(
+                        fontSize: 8, 
+                        color: Colors.red,
+                      ),
+                    ),
+                  )
+                else if (pumpRows[index]["total"] != null)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 5),
                     child: Text(
@@ -544,7 +566,6 @@ class _CreateReportFormState extends State<CreateReportForm> {
               FocusScope.of(context).unfocus();
               try {
                 final signature = await showSignaturePad(context);
-                if(signature == null) return;
                 provider.setField("${employee}Signature", signature);
               } catch(e){
                 debugPrint("Couldn't get the signature: $e");

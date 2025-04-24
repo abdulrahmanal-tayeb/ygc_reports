@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:signature/signature.dart';
 import 'dart:typed_data';
 
+import 'package:ygc_reports/core/utils/local_helpers.dart';
+
 Future<Uint8List?> showSignaturePad(BuildContext context) async {
   final SignatureController _controller = SignatureController(
     penStrokeWidth: 3,
@@ -31,8 +33,8 @@ Future<Uint8List?> showSignaturePad(BuildContext context) async {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              "Sign Below",
+            Text(
+              context.loc.signBelow,
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
@@ -55,7 +57,7 @@ Future<Uint8List?> showSignaturePad(BuildContext context) async {
                 TextButton.icon(
                   onPressed: _controller.clear,
                   icon: const Icon(Icons.refresh),
-                  label: const Text("Clear"),
+                  label: Text(context.loc.common_clear),
                 ),
                 ElevatedButton.icon(
                   onPressed: () async {
@@ -71,7 +73,7 @@ Future<Uint8List?> showSignaturePad(BuildContext context) async {
                     }
                   },
                   icon: const Icon(Icons.check, color: Colors.black),
-                  label: const Text("Save"),
+                  label: Text(context.loc.common_save),
                 ),
               ],
             ),

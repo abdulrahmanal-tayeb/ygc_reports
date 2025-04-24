@@ -9,21 +9,41 @@ class LanguageSwitcher extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localeProvider = Provider.of<LocaleProvider>(context, listen: false);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return DropdownButton<Locale>(
-      value: localeProvider.locale,
-      onChanged: (Locale? newLocale) {
-        if (newLocale != null) {
-          localeProvider.setLocale(newLocale);
-        }
-      },
-      items: context.supportedLocales.map((locale) {
-        final flag = locale.languageCode == 'ar' ? '🇸🇦 Arabic' : '🇺🇸 English';
-        return DropdownMenuItem(
-          value: locale,
-          child: Text(flag),
-        );
-      }).toList(),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.white.withOpacity(0.15)),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<Locale>(
+          value: localeProvider.locale,
+          dropdownColor: Colors.black87,
+          iconEnabledColor: Colors.white,
+          style: const TextStyle(color: Colors.white, fontSize: 14),
+          onChanged: (Locale? newLocale) {
+            if (newLocale != null) {
+              localeProvider.setLocale(newLocale);
+            }
+          },
+          items: context.supportedLocales.map((locale) {
+            final flag = locale.languageCode == 'ar' ? '🇸🇦 العربية' : '🇺🇸 English';
+            return DropdownMenuItem(
+              value: locale,
+              child: Text(
+                flag,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ),
     );
   }
 }

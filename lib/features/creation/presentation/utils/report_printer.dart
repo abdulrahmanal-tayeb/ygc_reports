@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:ygc_reports/core/constants/report_type.dart';
+import 'package:ygc_reports/core/utils/local_helpers.dart';
 import 'package:ygc_reports/models/report_model.dart';
 import "package:ygc_reports/core/utils/formatters.dart";
 
@@ -23,7 +24,7 @@ class ReportPrinter {
     this.addWatermark = true
   });
 
-  List<pw.Widget> buildReport(){
+  List<pw.Widget> buildReport(BuildContext context){
     return [
       ..._upperDate(),
       ..._metaData(),
@@ -33,7 +34,7 @@ class ReportPrinter {
       ..._remainingLoad(),
       ..._notes(),
       ..._employees(),
-      ..._footer(),
+      ..._footer(context),
     ];
   }
 
@@ -425,7 +426,7 @@ class ReportPrinter {
     ];
   }
 
-  List<pw.Widget> _footer(){
+  List<pw.Widget> _footer(BuildContext context){
     return []; // Temporarily
     return [
       // On images, it will be useless because it won't have enough quality to be scanned.
@@ -450,7 +451,7 @@ class ReportPrinter {
             width: width,
             height: 50,
             child: pw.Center(
-              child: pw.Text("Generated using YGC Reports from AmtCode.", style: pw.TextStyle(fontSize: 10)),
+              child: pw.Text(context.loc.generatedByAmtCode, style: pw.TextStyle(fontSize: 10)),
             ),
           ),
         )

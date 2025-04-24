@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ygc_reports/core/services/database/report_repository.dart';
 import 'package:ygc_reports/core/utils/formatters.dart';
+import 'package:ygc_reports/core/utils/local_helpers.dart';
 import 'package:ygc_reports/modals/delete_confirmation/delete_confirmation.dart';
 import 'package:ygc_reports/models/report_model.dart';
 
@@ -34,7 +35,7 @@ class _ReportPickerScreenState extends State<ReportPickerScreen> {
               if(
                 await showDeleteConfirmation(
                   context,
-                  isDraft? "Delete Draft" : "Delete Report"
+                  isDraft? context.loc.message_deleteDraft : context.loc.message_deleteReport
                 )
               ){
                 await reportRepository.deleteReport(reportId);
@@ -57,7 +58,7 @@ class _ReportPickerScreenState extends State<ReportPickerScreen> {
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error} ${snapshot.stackTrace}'));
           } else if (snapshot.data == null || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No reports available.'));
+            return Center(child: Text(context.loc.message_noReports));
           }
 
           final allReports = snapshot.data!;
@@ -73,7 +74,7 @@ class _ReportPickerScreenState extends State<ReportPickerScreen> {
                     expandedHeight: 50,
                     pinned: false,
                     floating: false,
-                    title: Text("Pick a Report"),
+                    title: Text(context.loc.pickReportScreenTitle),
                     flexibleSpace: const SizedBox.shrink(), // no content
                   ),
               ];
@@ -87,9 +88,9 @@ class _ReportPickerScreenState extends State<ReportPickerScreen> {
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     child: Row(
-                      children: const [
+                      children: [
                         Text(
-                          'Draft Reports',
+                          context.loc.draftReports,
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         SizedBox(width: 8),
@@ -119,9 +120,9 @@ class _ReportPickerScreenState extends State<ReportPickerScreen> {
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     child: Row(
-                      children: const [
+                      children: [
                         Text(
-                          'Submitted Reports',
+                          context.loc.submittedReports,
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         SizedBox(width: 8),

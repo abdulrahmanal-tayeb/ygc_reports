@@ -19,7 +19,7 @@ Future<void> showShareTypeBottomSheet({
         children: ReportType.values.map((type) {
           return ListTile(
             leading: Icon(getShareTypeIcon(type)),
-            title: Text(getShareTypeLabel(type)),
+            title: Text(getShareTypeLabel(context, type)),
             onTap: () {
               context.pop();
               onSelected(type);

@@ -5,6 +5,7 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:ygc_reports/core/constants/report_type.dart';
 import 'package:ygc_reports/core/utils/files.dart';
+import 'package:ygc_reports/core/utils/local_helpers.dart';
 import 'package:ygc_reports/modals/delete_confirmation/delete_confirmation.dart';
 import 'package:ygc_reports/models/report_file.dart';
 
@@ -83,7 +84,7 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
         _reportFiles.remove(file);
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Report deleted")),
+        SnackBar(content: Text(context.loc.message_reportDeleted)),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -100,7 +101,7 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Saved Reports'),
+        title: Text(context.loc.savedReportScreenTitle),
         automaticallyImplyLeading: false,
       ),
       body: FutureBuilder<List<ReportFile>>(

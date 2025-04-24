@@ -17,6 +17,8 @@ class FloatingActions<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
+
     return SpeedDial(
       icon: icon,
       activeIcon: activeIcon,
@@ -28,6 +30,8 @@ class FloatingActions<T> extends StatelessWidget {
       spaceBetweenChildren: 8,
       elevation: 4.0,
       childrenButtonSize: const Size(56.0, 56.0),
+      direction: SpeedDialDirection.up, // open upward to avoid overflow
+      switchLabelPosition: isRtl,       // labels to the left in RTL
       children: options.map((item) => itemBuilder(item)).toList(),
     );
   }

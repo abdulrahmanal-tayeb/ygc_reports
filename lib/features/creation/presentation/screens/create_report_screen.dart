@@ -6,8 +6,10 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:ygc_reports/core/constants/report_type.dart';
 import 'package:ygc_reports/core/services/database/report_repository.dart';
+import 'package:ygc_reports/core/utils/local_helpers.dart';
 import 'package:ygc_reports/core/utils/validators.dart';
 import 'package:ygc_reports/features/creation/presentation/utils/utils.dart';
+import 'package:ygc_reports/features/creation/presentation/widgets/drawer.dart';
 import 'package:ygc_reports/modals/share_type_sheet/share_type_sheet.dart';
 import 'package:ygc_reports/modals/signature_pad/signature_pad.dart';
 import 'package:ygc_reports/models/report_model.dart';
@@ -107,14 +109,14 @@ class _CreateReportFormState extends State<CreateReportForm> {
 
   String? validateNumber(String? value, {bool isRequired = false}) {
     if (isRequired && (value == null || value.isEmpty)) {
-      return 'This field is required';
+      return context.loc.error_required;
     }
 
     if(value == null) return null;
 
     final isNumeric = RegExp(r'^\d+$').hasMatch(value);
     if (!isNumeric) {
-      return 'Only numbers';
+      return context.loc.error_onlyNumbers;
     }
 
     return null; // ✅ valid
@@ -154,9 +156,11 @@ class _CreateReportFormState extends State<CreateReportForm> {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<ReportProvider>(context);
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
+
     return Scaffold(
         appBar: AppBar(
-          title: Text("Create Report"),
+          title: Text(context.loc.createReportScreenTitle),
           actions: [
             IconButton(
               onPressed: (){
@@ -166,31 +170,35 @@ class _CreateReportFormState extends State<CreateReportForm> {
             )
           ],
         ),
-        body: Stack(
-          children: [
-            Column(
-              spacing: 5,
-              children: [
-                LanguageSwitcher(),
-                Expanded(child: _buildForm(context, provider)),
-                Row(
-                  children: [
-                    Checkbox(
-                      value: provider.model.isEmptying,
-                      onChanged: (bool? isEmptying){
-                      provider.setField("isEmptying", isEmptying);
-                    }),
-                    const Text("Emptying report")
-                  ],
-                )
-              ]
-            ),
-            Positioned(
-              bottom: 10,
-              right: 10,
-              child: _buildFloatingButton(context, provider),
-            )
-          ],
+        drawer: DrawerWidget(),
+        extendBodyBehindAppBar: true,
+        body: SafeArea(
+          child: Stack(
+            children: [
+              Column(
+                spacing: 5,
+                children: [
+                  Expanded(child: _buildForm(context, provider)),
+                  Row(
+                    children: [
+                      Checkbox(
+                        value: provider.model.isEmptying,
+                        onChanged: (bool? isEmptying){
+                        provider.setField("isEmptying", isEmptying);
+                      }),
+                      Text(context.loc.emptyingReport)
+                    ],
+                  )
+                ]
+              ),
+              Positioned(
+                bottom: 10,
+                right: isRtl? null : 10,
+                left: isRtl? 10 : null,
+                child: _buildFloatingButton(context, provider),
+              )
+            ],
+          )
         ),
         bottomNavigationBar: Padding(
           padding: const EdgeInsets.all(10),
@@ -204,7 +212,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
                   children: [
                     const Icon(Icons.auto_awesome, size: 10),
                     Text(
-                      "Prefilled from previous report",
+                      context.loc.hint_prefilledReport,
                       style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor),
                     )
                   ],
@@ -214,7 +222,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
                 width: MediaQuery.of(context).size.width,
                 child: ElevatedButton(
                   onPressed: validate(provider.model)? () => _generateReport(provider) : null, 
-                  child: const Text("Create")
+                  child: Text(context.loc.common_create)
                 )
               )
             ],
@@ -226,12 +234,12 @@ class _CreateReportFormState extends State<CreateReportForm> {
   Widget _buildFloatingButton(BuildContext context, ReportProvider provider){
     return FloatingActions<Map<String, dynamic>>(
       options: [
-        {"label": "From last report", "icon": Icons.history, "onTap": () async {
+        {"label": context.loc.common_fromLastReport, "icon": Icons.history, "onTap": () async {
             prefillReport(await provider.loadFromReport());
           }
         },
         {
-          "label": "From previous report", "icon": Icons.edit_document,
+          "label": context.loc.common_fromPreviousReport, "icon": Icons.edit_document,
           "onTap": () async {
             final result = await context.push<ReportModel>('/reportPicker');
             if(result != null){
@@ -239,15 +247,15 @@ class _CreateReportFormState extends State<CreateReportForm> {
             }
           }
         },
-        {"label": "Save Draft", "icon": Icons.save_as_rounded, "onTap": () {
+        {"label": context.loc.common_saveDraft, "icon": Icons.save_as_rounded, "onTap": () {
           final report = provider.model;
           report.isDraft = true;
           reportRepository.insertReport(report);
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Saved as Draft")),
+            SnackBar(content: Text(context.loc.message_draftSaved)),
           );
         }},
-        {"label": "New Report", "icon": Icons.refresh, "onTap": () {
+        {"label": context.loc.common_newReport, "icon": Icons.refresh, "onTap": () {
           provider.clear(notify: false);
           setState(() {
             prefilledReport = false;
@@ -288,23 +296,23 @@ class _CreateReportFormState extends State<CreateReportForm> {
   Widget _buildMetadataSection(BuildContext context, ReportProvider provider, ReportModel model) {
     return buildSection(
       initialCollapsed: false,
-      title: 'Metadata',
+      title: context.loc.section_metadata,
       children: [
         _spaced(_buildField(
           context,
-          "Station Name",
+          context.loc.field_stationName,
           model.stationName,
           "stationName",
-          validator: (val) => Validators.required(val, 'Station Name'),
+          validator: (val) => Validators.required(context, val, 'Station Name'),
         )),
         _spaced(_buildDatePickerField(context, provider, model)),
         _spaced(TimeInputField(
-          label: 'Begin Time',
+          label: context.loc.field_beginTime,
           initialTime: model.beginTime,
           onTimeChanged: provider.setBeginTime,
         )),
         _spaced(TimeInputField(
-          label: 'End Time',
+          label: context.loc.field_endTime,
           initialTime: model.endTime,
           onTimeChanged: provider.setEndTime,
         )),
@@ -326,7 +334,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
       child: AbsorbPointer(
         child: _buildField(
           context,
-          "Date",
+          context.loc.field_date,
           model.date.toString().split(" ")[0],
           "date",
         ),
@@ -337,31 +345,31 @@ class _CreateReportFormState extends State<CreateReportForm> {
   // --- Station Status Section --- 
   Widget _buildStationStatusSection(BuildContext context, ReportProvider provider, ReportModel model) {
     return buildSection(
-      title: 'Station Status',
+      title: context.loc.section_stationStatus,
       children: [
         _spaced(_buildField(
           context,
-          'Tank Load',
+          context.loc.field_tankLoad,
           model.tankLoad,
           'tankLoad',
-          validator: (val) => Validators.positiveNumber(val, "Tank Load"),
+          validator: (val) => Validators.positiveNumber(context, val, "Tank Load"),
           onChange: () => updateTotalTankLoad(provider),
         )),
         _spaced(_buildField(
           context,
-          'Inbound Amount',
+          context.loc.field_inboundAmount,
           model.inboundAmount,
           'inboundAmount',
-          validator: (val) => Validators.positiveNumber(val, "Inbound Load"),
+          validator: (val) => Validators.positiveNumber(context, val, "Inbound Load"),
           onChange: () => updateTotalTankLoad(provider),
         )),
         _spaced(_buildField(
           context,
-          'Total Load',
+          context.loc.field_totalLoad,
           model.totalLoad,
           'totalLoad',
           enabled: false,
-          validator: (val) => Validators.positiveNumber(val, "Total Load"),
+          validator: (val) => Validators.positiveNumber(context, val, "Total Load"),
         )),
       ],
     );
@@ -370,7 +378,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
   // --- Pump Readings Section ---
   Widget _buildPumpReadingsSection(BuildContext context, ReportProvider provider, ReportModel model) {
     return buildSection(
-      title: 'Pump Readings',
+      title: context.loc.section_pumpReadings,
       children: [
         ...List.generate(pumpRows.length, (index) {
           return Padding(
@@ -383,7 +391,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
                   children: [
                     Expanded(
                       child: FocusTextField(
-                        decoration: const InputDecoration(labelText: 'Start Reading'),
+                        decoration: InputDecoration(labelText: context.loc.field_startReading),
                         initialValue: pumpRows[index]["start"].toString(),
                         onDebouncedChanged: (val) => updateReadingRow("start", index, int.tryParse(val) ?? 0),
                         validator: (val) => validateNumber(val, isRequired: true),
@@ -392,7 +400,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: FocusTextField(
-                        decoration: const InputDecoration(labelText: 'End Reading'),
+                        decoration: InputDecoration(labelText: context.loc.field_endReading),
                         initialValue: pumpRows[index]["end"].toString(),
                         onDebouncedChanged: (val) => updateReadingRow("end", index, int.tryParse(val) ?? 0),
                         validator: (val) => validateNumber(val, isRequired: true),
@@ -410,7 +418,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 5),
                     child: Text(
-                      "Consumed: ${pumpRows[index]["total"]}",
+                      context.loc.hint_consumed(pumpRows[index]["total"] ?? 0),
                       style: TextStyle(fontSize: 8, color: Theme.of(context).hintColor),
                     ),
                   ),
@@ -423,7 +431,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
             pumpRows.add({"start": 0, "end": 0, "total": 0});
           }),
           icon: const Icon(Icons.add),
-          label: const Text("Add Row"),
+          label: Text(context.loc.common_addRow),
         ),
       ],
     );
@@ -433,15 +441,15 @@ class _CreateReportFormState extends State<CreateReportForm> {
   Widget _buildNotesSection(BuildContext context, ReportProvider provider, ReportModel model) {
     debugPrint("MOOOOOOOOOODEL: ${model.filledForPeople} : ${model.notes}");
     return buildSection(
-      title: 'Notes',
+      title: context.loc.section_notes,
       children: [
         _spaced(_buildField(
           context,
-          'Filled for People (L)',
+          context.loc.field_filledForPeople,
           model.filledForPeople,
           'filledForPeople',
           decoration: InputDecoration(
-            labelText: 'Filled for People (L)',
+            labelText: context.loc.field_filledForPeople,
             suffixText: '/ ${model.totalConsumed}',
           ),
           onChange: () => updateNotesReadings(provider),
@@ -450,13 +458,13 @@ class _CreateReportFormState extends State<CreateReportForm> {
           validator: (value) {
             if (value == null || value.isEmpty) return null;
             final number = int.tryParse(value);
-            if (number == null) return 'Please enter a valid number';
-            if (number > model.totalConsumed) return 'The number should not exceed ${model.totalConsumed}';
+            if (number == null) return context.loc.error_onlyNumbers;
+            if (number > model.totalConsumed) return context.loc.error_numberLimitExceeded(model.totalConsumed);
             return null;
           },
         )),
         _spaced(FocusTextField(
-          decoration: const InputDecoration(labelText: 'Notes'),
+          decoration: InputDecoration(labelText: context.loc.field_notes),
           initialValue: model.notes,
           maxLines: 3,
           onDebouncedChanged: (v) => provider.setField('notes', v),
@@ -468,16 +476,16 @@ class _CreateReportFormState extends State<CreateReportForm> {
   // --- Workers Section ---
   Widget _buildWorkersSection(BuildContext context, ReportProvider provider, ReportModel model) {
     return buildSection(
-      title: 'Workers',
+      title: context.loc.section_workers,
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: buildSection(
-            title: "Station Worker",
+            title: context.loc.section_stationWorker,
             children: [
               _spaced(_buildField(
                 context,
-                "Worker Name",
+                context.loc.field_workerName,
                 model.workerName,
                 "workerName",
               )),
@@ -489,11 +497,11 @@ class _CreateReportFormState extends State<CreateReportForm> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: buildSection(
-            title: "YGC Representative",
+            title: context.loc.section_representative,
             children: [
               _spaced(_buildField(
                 context,
-                "Representative Name",
+                context.loc.field_representativeName,
                 model.representativeName,
                 "representativeName",
               )),
@@ -542,7 +550,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
                 debugPrint("Couldn't get the signature: $e");
               }
             }, 
-            child: const Text("Sign")
+            child:  Text(context.loc.common_sign)
           )
       ],
     );

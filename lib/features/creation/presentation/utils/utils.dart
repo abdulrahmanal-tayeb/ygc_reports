@@ -45,7 +45,7 @@ Future<void> generateReport({
       pw.Page(
         margin: pw.EdgeInsets.zero,
         pageFormat: PdfPageFormat.a4,
-        build: (pw.Context context) {
+        build: (pw.Context pwcontext) {
           return pw.Directionality(
             textDirection: pw.TextDirection.rtl, 
             child: pw.Stack(
@@ -54,7 +54,7 @@ Future<void> generateReport({
                 pw.Positioned.fill(
                   child: pw.Image(image, fit: pw.BoxFit.cover),
                 ),
-                ...reportPrinter.buildReport(),
+                ...reportPrinter.buildReport(context),
                 // Your custom overlay
               ],
             )

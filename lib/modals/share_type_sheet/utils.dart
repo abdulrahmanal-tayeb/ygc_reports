@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ygc_reports/core/constants/report_type.dart';
+import 'package:ygc_reports/core/utils/local_helpers.dart';
 
 IconData getShareTypeIcon(ReportType type) {
   switch (type) {
@@ -10,11 +11,11 @@ IconData getShareTypeIcon(ReportType type) {
   }
 }
 
-String getShareTypeLabel(ReportType type) {
+String getShareTypeLabel(BuildContext context, ReportType type) {
   switch (type) {
     case ReportType.pdf:
-      return 'Share as PDF';
+      return context.loc.common_shareAsPDF;
     case ReportType.image:
-      return 'Share as Image';
+      return context.loc.common_shareAsImage;
   }
 }

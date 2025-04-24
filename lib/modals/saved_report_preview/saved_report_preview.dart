@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
+import 'package:ygc_reports/core/utils/local_helpers.dart';
 
 Future<void> showReportPreview(BuildContext context, {String? path, Uint8List? data,  required void Function({bool save}) onShare}) async {
   await showModalBottomSheet(
@@ -18,8 +19,8 @@ Future<void> showReportPreview(BuildContext context, {String? path, Uint8List? d
               backgroundColor: Colors.white,
               elevation: 0,
               centerTitle: true,
-              title: const Text(
-                'Report Preview',
+              title: Text(
+                context.loc.reportPreview,
                 style: TextStyle(
                   color: Colors.black87,
                   fontWeight: FontWeight.w600,
@@ -71,7 +72,7 @@ Future<void> showReportPreview(BuildContext context, {String? path, Uint8List? d
                               child: ElevatedButton.icon(
                                 onPressed: () => onShare!(save: false),
                                 icon: const Icon(Icons.share, color: Colors.black),
-                                label: const Text('Share Only', style: TextStyle(color: Colors.black)),
+                                label: Text(context.loc.common_share, style: TextStyle(color: Colors.black)),
                                 style: ElevatedButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(vertical: 14),
                                   shape: RoundedRectangleBorder(
@@ -88,7 +89,7 @@ Future<void> showReportPreview(BuildContext context, {String? path, Uint8List? d
                               child: ElevatedButton.icon(
                                 onPressed: onShare,
                                 icon: const Icon(Icons.save_alt_rounded, color: Colors.white,),
-                                label: const Text('Save & Share', style: TextStyle(color: Colors.white),),
+                                label: Text(context.loc.common_saveAndShare, style: TextStyle(color: Colors.white),),
                                 style: ElevatedButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(vertical: 14),
                                   shape: RoundedRectangleBorder(

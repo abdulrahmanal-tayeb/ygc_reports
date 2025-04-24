@@ -1,5 +1,80 @@
 {
-    "@@locale": "ar",
-    "hello": "اهلا",
-    "welcome": "مرحبااااااااا بالعالم"
-  }
+  "@@locale": "ar",
+
+  "createReportScreenTitle": "إنشاء تقرير",
+  "pickReportScreenTitle": "اختيار تقرير",
+  "savedReportScreenTitle": "التقارير المحفوظة",
+
+  "emptyingReport": "تقرير تصفيه",
+  "generatedByAmtCode": "تم إنشاؤه باستخدام برنامج YGC Reports من AmtCode.",
+  "draftReports": "مسودات التقارير",
+  "submittedReports": "التقارير التي تم ارسالها",
+  "reportPreview": "معاينة التقرير",
+  "signBelow": "اضف توقيعك تحت هنا",
+
+  "message_draftSaved": "تم الحفظ كمسودة",
+  "message_noReports": "مافيش تقارير حالياً",
+  "message_reportDeleted": "تم حذف التقرير",
+  "message_deleteReport": "حذف التقرير",
+  "message_deleteDraft": "حذف المسودة",
+
+  "error_required": "هذا الحقل لازم تعبّيه",
+  "error_positiveNumber": "لازم تحط رقم موجب",
+  "error_incorrectReading": "القراءة هذي مش صحيحة",
+  "error_onlyNumbers": "الأرقام بس مسموحة",
+  "error_numberLimitExceeded": "القيمة ما لازم تزيد عن {maxNumber}",
+  "@error_numberLimitExceeded": {
+    "placeholders": {
+      "maxNumber": {}
+    }
+  },
+
+  "hint_prefilledReport": "تمت التعبئة تلقائياً من تقرير سابق",
+  "hint_consumed": "الكمية المنصرفة: {liters, plural, =0{٠ لتر} =1{١ لتر} other{{liters} لتر}}",
+  "@hint_consumed": {
+    "description": "الكمية المستهلكة من بداية العمل، بصيغة الجمع",
+    "placeholders": {
+      "liters": {
+        "type": "int"
+      }
+    }
+  },
+  
+  "section_metadata": "بيانات التقرير",
+  "section_stationStatus": "حالة المحطة",
+  "section_pumpReadings": "قراءات الطرمبة",
+  "section_notes": "ملاحظات",
+  "section_workers": "الموظفون",
+  "section_stationWorker": "عامل المحطة",
+  "section_representative": "مندوب الشركة اليمنية للغاز",
+
+  "field_stationName": "اسم المحطة",
+  "field_date": "التاريخ",
+  "field_beginTime": "بداية الدوام",
+  "field_endTime": "نهاية الدوام",
+  "field_tankLoad": "الكمية المرحلة في الخزان",
+  "field_inboundAmount": "الكمية المفرغة",
+  "field_totalLoad": "إجمالي رصيد الخزان",
+  "field_startReading": "القراءة بداية العمل",
+  "field_endReading": "القراءة نهاية العمل",
+  "field_filledForPeople": " الكمية المعبّأه للمواطنين (لتر)",
+  "field_notes": "ملاحظات",
+  "field_workerName": "اسم عامل المحطة",
+  "field_representativeName": "اسم مندوب الشركة",
+
+  "common_create": "إنشاء",
+  "common_addRow": "إضافة قراءه",
+  "common_sign": "اضف توقيع",
+  "common_cancel": "إلغاء",
+  "common_delete": "حذف",
+  "common_share": "مشاركة",
+  "common_clear": "مسح",
+  "common_save": "حفظ",
+  "common_saveAndShare": "حفظ ومشاركة",
+  "common_fromLastReport": "ملء من التقرير الأخير",
+  "common_fromPreviousReport": "ملء من تقرير سابق",
+  "common_saveDraft": "حفظ كمسودة",
+  "common_newReport": "تقرير جديد",
+  "common_shareAsPDF": "مشاركة بصيغة PDF",
+  "common_shareAsImage": "مشاركة كصورة"
+}

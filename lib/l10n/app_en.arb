@@ -1,5 +1,85 @@
 {
   "@@locale": "en",
-  "hello": "Hello",
-  "welcome": "Welcome to your app"
+
+  "createReportScreenTitle": "Create Report",
+  "pickReportScreenTitle": "Pick a Report",
+  "savedReportScreenTitle": "Saved Reports",
+
+
+  "emptyingReport": "Emptying Report",
+  "generatedByAmtCode": "Generated using YGC Reports from AmtCode.",
+  "draftReports": "Draft Reports",
+  "submittedReports": "Submitted Reports",
+  "reportPreview": "Report Preview",
+  "signBelow": "Sign Below",
+
+  
+  "message_draftSaved": "Saved as Draft",
+  "message_noReports": "No Reports Available",
+  "message_reportDeleted": "Report Deleted",
+  "message_deleteReport": "Delete Report",
+  "message_deleteDraft": "Delete Draft",
+
+  "error_required": "This field is required",
+  "error_positiveNumber": "This field must be a positive number",
+  "error_incorrectReading": "This reading is incorrect.",
+  "error_onlyNumbers": "Only numbers are accepted",
+  "error_numberLimitExceeded": "This value should not exceed {maxNumber}",
+  "@error_numberLimitExceeded": {
+    "placeholders": {
+      "maxNumber": {}
+    }
+  },
+
+
+  "hint_prefilledReport": "Prefilled from previous report",
+  "hint_consumed": "Consumed: {liters, plural, =0{0 Liters} =1{1 Liter} other{{liters} Liters}}",
+  "@hint_consumed": {
+    "description": "The amount consumed from the shift start, pluralized by liters",
+    "placeholders": {
+      "liters": {
+        "type": "int"
+      }
+    }
+  },
+
+  "section_metadata": "Metadata",
+  "section_stationStatus": "Station Status",
+  "section_pumpReadings": "Pump Readings",
+  "section_notes": "Notes",
+  "section_workers": "Workers",
+  "section_stationWorker": "Station Worker",
+  "section_representative": "YGC Representative",
+
+
+  "field_stationName": "Station Name",
+  "field_date": "Date",
+  "field_beginTime": "Begin Time",
+  "field_endTime": "End Time",
+  "field_tankLoad": "Tank Load",
+  "field_inboundAmount": "Inbound Amount",
+  "field_totalLoad": "Total Load",
+  "field_startReading": "Start Reading",
+  "field_endReading": "End Reading",
+  "field_filledForPeople": "Filled For People (L)",
+  "field_notes": "Notes",
+  "field_workerName": "Worker Name",
+  "field_representativeName": "Representative Name",
+
+
+  "common_create": "Create",
+  "common_addRow": "Add Row",
+  "common_sign": "Sign",
+  "common_cancel": "Cancel",
+  "common_delete": "Delete",
+  "common_share": "Share",
+  "common_clear": "Clear",
+  "common_save": "Save",
+  "common_saveAndShare": "Save & Share",
+  "common_fromLastReport": "From Last Report",
+  "common_fromPreviousReport": "From Previous Report",
+  "common_saveDraft": "Save Draft",
+  "common_newReport": "New Report",
+  "common_shareAsPDF": "Share as PDF",
+  "common_shareAsImage": "Share as Image"
 }

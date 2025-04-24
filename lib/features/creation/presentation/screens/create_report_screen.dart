@@ -10,6 +10,7 @@ import 'package:ygc_reports/core/utils/local_helpers.dart';
 import 'package:ygc_reports/core/utils/validators.dart';
 import 'package:ygc_reports/features/creation/presentation/utils/utils.dart';
 import 'package:ygc_reports/features/creation/presentation/widgets/drawer.dart';
+import 'package:ygc_reports/features/creation/presentation/widgets/prefill_options_dialog.dart';
 import 'package:ygc_reports/modals/share_type_sheet/share_type_sheet.dart';
 import 'package:ygc_reports/modals/signature_pad/signature_pad.dart';
 import 'package:ygc_reports/models/report_model.dart';
@@ -252,8 +253,10 @@ class _CreateReportFormState extends State<CreateReportForm> {
           "label": context.loc.common_fromPreviousReport, "icon": Icons.edit_document,
           "onTap": () async {
             final result = await context.push<ReportModel>('/reportPicker');
+
             if(result != null){
-              prefillReport(await provider.loadFromReport(reportModel: result));
+              final prepareForNextReport = await showDialog<bool>(context: context, builder: (context) => PrefillOptionsDialog());
+              prefillReport(await provider.loadFromReport(reportModel: result, prepareForNextReport: (prepareForNextReport ?? false)));
             }
           }
         },

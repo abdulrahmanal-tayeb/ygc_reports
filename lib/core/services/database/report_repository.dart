@@ -69,6 +69,23 @@ class ReportRepository {
     ''');
   }
 
+  Future<bool> reportExistsOnDate(DateTime date) async {
+    final db = await database;
+
+    // Normalize the date to match only the date portion (ignore time)
+    final startOfDay = DateTime(date.year, date.month, date.day);
+    final endOfDay = startOfDay.add(Duration(days: 1));
+
+    final result = await db.query(
+      'reports',
+      where: 'date >= ? AND date < ?',
+      whereArgs: [startOfDay.toIso8601String(), endOfDay.toIso8601String()],
+      limit: 1,
+    );
+
+    return result.isNotEmpty;
+  }
+
   Future<ReportModel> latestReport() async {
     final db = await database;
     final result = await db.rawQuery('''

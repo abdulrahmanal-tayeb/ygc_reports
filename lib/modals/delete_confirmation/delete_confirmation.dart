@@ -1,23 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:ygc_reports/core/utils/local_helpers.dart';
 
-Future<bool> showDeleteConfirmation(BuildContext context, [String title = "Delete Report", String content = "Are you sure you want to delete this report?"]) async {
+Future<bool> showConfirmation(BuildContext context, String title, String content, {
+  String? confirmText,
+  Color confirmColor = Colors.red,
+}) async {
   return await showDialog<bool>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text(title),
-          content: Text(content),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: Text(context.loc.common_cancel),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: Text(context.loc.common_delete, style: TextStyle(color: Colors.red)),
-            ),
-          ],
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(title),
+      content: Text(content),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: Text(context.loc.common_cancel),
         ),
-      ) ??
-      false; // Return false if dismissed
+        TextButton(
+          onPressed: () => Navigator.pop(context, true),
+          child: Text(confirmText ?? context.loc.common_delete, style: TextStyle(color: confirmColor)),
+        ),
+      ],
+    ),
+  ) ??
+  false;
 }

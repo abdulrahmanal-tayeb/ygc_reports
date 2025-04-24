@@ -12,13 +12,18 @@
   "submittedReports": "Submitted Reports",
   "reportPreview": "Report Preview",
   "signBelow": "Sign Below",
+  "choosePrefillMethod": "Choose a prefill method",
+  "choosePrefillMethodText": "Do you want to prefill this report or prepare it for the next report?",
+  "reportExist": "Report Already Exist",
+  "reportExistText": "A report with this date has already been generated. Do you like to overwrite it?",
 
-  
+
   "message_draftSaved": "Saved as Draft",
   "message_noReports": "No Reports Available",
   "message_reportDeleted": "Report Deleted",
   "message_deleteReport": "Delete Report",
   "message_deleteDraft": "Delete Draft",
+  "message_deleteReportText": "Are you sure you want to delete it?",
 
   "error_required": "This field is required",
   "error_positiveNumber": "This field must be a positive number",
@@ -81,5 +86,8 @@
   "common_saveDraft": "Save Draft",
   "common_newReport": "New Report",
   "common_shareAsPDF": "Share as PDF",
-  "common_shareAsImage": "Share as Image"
+  "common_shareAsImage": "Share as Image",
+  "common_prefillOnly": "Prefill Only",
+  "common_prepareForNextReport": "Prepare for Next Report",
+  "common_overwrite": "Overwrite"
 }

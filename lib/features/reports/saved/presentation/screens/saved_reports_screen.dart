@@ -139,7 +139,11 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
                       ),
                       IconButton(
                         onPressed: () async {
-                          final confirm = await showDeleteConfirmation(context);
+                          final confirm = await showConfirmation(
+                            context,
+                            context.loc.message_deleteReport,
+                            context.loc.message_deleteReportText
+                          );
                           if (confirm) {
                             // Delete the report and update the list
                             await _deleteReport(file);

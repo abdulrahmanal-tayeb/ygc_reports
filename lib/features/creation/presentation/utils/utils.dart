@@ -13,7 +13,9 @@ import 'package:ygc_reports/core/constants/report_type.dart';
 import 'package:ygc_reports/core/services/database/report_repository.dart';
 import 'package:ygc_reports/core/utils/files.dart';
 import 'package:ygc_reports/core/utils/formatters.dart';
+import 'package:ygc_reports/core/utils/local_helpers.dart';
 import 'package:ygc_reports/features/creation/presentation/utils/report_printer.dart';
+import 'package:ygc_reports/modals/delete_confirmation/delete_confirmation.dart';
 import 'package:ygc_reports/modals/saved_report_preview/saved_report_preview.dart';
 import 'package:ygc_reports/models/report_model.dart';
 import 'package:path_provider/path_provider.dart';
@@ -25,6 +27,16 @@ Future<void> generateReport({
   required ReportType fileType
 }) async {
   if (await Permission.storage.request().isGranted) {
+    final bool reportExist = await reportRepository.reportExistsOnDate(model.date);
+    if(reportExist){
+      final result = await showConfirmation(
+        context, 
+        context.loc.reportExist, 
+        context.loc.reportExistText,
+        confirmText: context.loc.common_overwrite
+      );
+      if(!result) return; // The user don't want to overwrite the previous report.
+    }
 
     final pdf = pw.Document();
 
@@ -72,7 +84,6 @@ Future<void> generateReport({
   }
 }
 
-
 Future<void> saveAndSharePdf(BuildContext context, Uint8List pdfBytes, String filename, {required ReportModel model}) async {
   // Get the internal storage directory (application documents directory)
 
@@ -81,20 +92,30 @@ Future<void> saveAndSharePdf(BuildContext context, Uint8List pdfBytes, String fi
   if (path != null) {
     final filePath = "$path/$filename.pdf";
     final file = File(filePath);
-    await showReportPreview(
+    await file.writeAsBytes(pdfBytes); // Needed to open the PDF preview.
+    bool shouldSave = true;
+
+    final bool wasDismissed = await showReportPreview(
       context, 
       path: filePath,
       onShare: ({bool save = true}) async {
         if(save){
           reportRepository.insertReport(model);
-          await file.writeAsBytes(pdfBytes);
+        } else {
+          shouldSave = false;
         }
+
         await Share.shareXFiles(
           [XFile(file.path)],
           text: 'تقرير محطة ${model.stationName} ليوم ${getDayName(model.date)} الموافق ${formatDate(model.date)} من الساعة ${formatTimeOfDay(model.beginTime)} الى الساعة ${formatTimeOfDay(model.endTime)}. مندوب الشركة اليمنية للغاز: ${model.representativeName}.',
         );
       },
     );
+
+    if(wasDismissed || !shouldSave){
+      debugPrint("DELETEEEEEEEEEEEEEEEEEED");
+      file.delete();
+    }
   }
 }
 

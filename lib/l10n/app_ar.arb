@@ -11,12 +11,17 @@
   "submittedReports": "التقارير التي تم ارسالها",
   "reportPreview": "معاينة التقرير",
   "signBelow": "اضف توقيعك تحت هنا",
+  "choosePrefillMethod": "اختر طريقة الملء",
+  "choosePrefillMethodText": "هل تريد ملء التقرير كما هو او تحضيره لإنشاء تقرير جديد؟",
+  "reportExist": "التقرير موجود مسبقا",
+  "reportExistText": "تم العثور على تقرير بنفس التاريخ. هل تريد استبدال التقرير القديم؟",
 
   "message_draftSaved": "تم الحفظ كمسودة",
   "message_noReports": "لاتوجد تقارير حالياً",
   "message_reportDeleted": "تم حذف التقرير",
   "message_deleteReport": "حذف التقرير",
   "message_deleteDraft": "حذف المسودة",
+  "message_deleteReportText": "هل انت متأكد من انك تريد حذف التقرير؟",
 
   "error_required": "يجب تعبئة هذا الحقل",
   "error_positiveNumber": "ارقام موجبة فقط",
@@ -76,5 +81,8 @@
   "common_saveDraft": "حفظ كمسودة",
   "common_newReport": "تقرير جديد",
   "common_shareAsPDF": "مشاركة بصيغة PDF",
-  "common_shareAsImage": "مشاركة كصورة"
+  "common_shareAsImage": "مشاركة كصورة",
+  "common_prefillOnly": "ملء التقرير",
+  "common_prepareForNextReport": "ملء تحضيرا لتقرير جديد",
+  "common_overwrite": "استبدال التقرير"
 }

@@ -37,8 +37,16 @@ Future<void> generateReport({
       if(!result) return; // The user don't want to overwrite the previous report.
     }
 
-    final pdf = pw.Document();
+    final ReportModel? previousReport = await reportRepository.getReportByDate(model.date.subtract(const Duration(days: 1)) );
 
+    debugPrint("BROOOOOOOOOOO IS THE FUCKING THING IS: ${previousReport}");
+    // If its the report for the next day, calculate the increase the total consumed liters.
+    if(previousReport != null && previousReport.stationName == model.stationName){
+      model.litersDifference = model.totalConsumed - previousReport.totalConsumed;
+      model.progress = calculatePercentageIncrease(previousReport.totalConsumed, model.totalConsumed);
+    }
+    
+    final pdf = pw.Document();
     // Load the background image
     final imageData = await rootBundle.load('assets/docs/template.png');
     final image = pw.MemoryImage(imageData.buffer.asUint8List());

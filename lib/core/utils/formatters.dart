@@ -14,8 +14,8 @@ String getDayName(DateTime date){
   return arabicDays[date.weekday] ?? '';
 }
 
-String formatDate(DateTime date) {
-  return '${date.year} / ${date.month} / ${date.day}';
+String formatDate(DateTime date, {bool reverseDirection = false}) {
+  return reverseDirection? '${date.day} / ${date.month} / ${date.year}' : '${date.year} / ${date.month} / ${date.day}';
 }
 
 String formatTimeOfDay(TimeOfDay time) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:ygc_reports/core/constants/report_type.dart';
 import 'package:ygc_reports/core/utils/local_helpers.dart';
@@ -33,6 +34,7 @@ class ReportPrinter {
       ..._pumpReads(),
       ..._remainingLoad(),
       ..._notes(),
+      ..._statistics(),
       ..._employees(),
       ..._footer(context),
     ];
@@ -134,7 +136,7 @@ class ReportPrinter {
                       font: font,
                       fontWeight: pw.FontWeight.bold,
                     ),
-                    text: "${formatDate(data.date)} "
+                    text: "${formatDate(data.date, reverseDirection: true)} م"
                   ),
                 ]
               )
@@ -307,7 +309,7 @@ class ReportPrinter {
   }
 
   List<pw.Widget> _notes(){
-    final double y = 565;
+    final double y = 539;
     
     return [
       if(data.filledForPeople > 0) 
@@ -361,6 +363,38 @@ class ReportPrinter {
             ),
           ),
         ),
+    ];
+  }
+
+  List<pw.Widget> _statistics(){
+    final double y = 658;
+
+    return [
+      if(data.fullTankWeight > 0)
+        pw.Positioned(
+          right: 165,
+          top: y,
+          child: pw.Container(
+            width: 55,
+            height: 15,
+            child: pw.Center(
+              child: arabicText("${data.fullTankWeight.toString()} كجم"), // or any function that returns pw.Text
+            ),
+          ),
+        ),
+        
+        if((data.progress ?? 0) > 0 || (data.litersDifference ?? 0).abs() > 0)
+          pw.Positioned(
+            right: 220,
+            top: y + 18,
+            child: pw.Container(
+              width: 200,
+              height: 15,
+              child: arabicText(
+                  "${data.litersDifference! < 0 ? "نقصان بنسبة " : "زيادة بنسبة "} ( ${data.progress}% ) ( ${data.litersDifference!.abs()} لتر )"
+                ),
+            ),
+          )
     ];
   }
 

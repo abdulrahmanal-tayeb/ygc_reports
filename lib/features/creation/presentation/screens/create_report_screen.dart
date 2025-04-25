@@ -486,6 +486,16 @@ class _CreateReportFormState extends State<CreateReportForm> {
             return null;
           },
         )),
+        _spaced(_buildField(
+          context,
+          "Full Tank Weight (20L)",
+          model.fullTankWeight,
+          'fullTankWeight',
+          decoration: InputDecoration(
+            labelText: "Full Tank Weight (20L)",
+          ),
+          keyboardType: TextInputType.number,
+        )),
         _spaced(FocusTextField(
           decoration: InputDecoration(labelText: context.loc.field_notes),
           initialValue: model.notes,

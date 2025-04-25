@@ -32,6 +32,9 @@ class ReportProvider extends ChangeNotifier {
       case 'tankLoad':
         model.tankLoad = int.tryParse(value) ?? 0;
         break;
+      case 'fullTankWeight':
+        model.fullTankWeight = double.tryParse(value) ?? 0;
+        break;
       case 'inboundAmount':
         model.inboundAmount = int.tryParse(value) ?? 0;
         break;

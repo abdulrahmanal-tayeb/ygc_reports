@@ -35,6 +35,17 @@ class ReportModel {
   bool isDraft;
   int? id;
 
+
+  // Additional fields
+  /// The percentage of the difference in work with the prior day.
+  double? progress;
+
+  /// The tank weight (20L)
+  double fullTankWeight;
+
+  /// The liters difference than the prior day
+  int? litersDifference;
+
   ReportModel({
     this.stationName = '',
     DateTime? date,
@@ -43,6 +54,8 @@ class ReportModel {
     this.tankLoad = 0,
     this.isDraft = false,
     this.id,
+    this.progress,
+    this.fullTankWeight = 0,
     this.inboundAmount = 0,
     this.totalLoad = 0,
     this.remainingLoad = 0,

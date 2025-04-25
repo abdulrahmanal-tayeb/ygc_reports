@@ -6,3 +6,8 @@ extension L10nHelper on BuildContext {
   List<Locale> get supportedLocales => AppLocalizations.supportedLocales;
   bool get isRtl => Directionality.of(this) == TextDirection.rtl;
 }
+
+double calculatePercentageIncrease(int oldValue, int newValue) {
+  if (oldValue == 0) return double.infinity; // avoid division by zero
+  return (((newValue - oldValue) / oldValue) * 100).roundToDouble().abs();
+}

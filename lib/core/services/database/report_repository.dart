@@ -149,6 +149,31 @@ class ReportRepository {
     );
   }
 
+
+  Future<ReportModel?> getReportByDate(DateTime date, {bool isDraft = false}) async {
+    final db = await database;
+
+    // Normalize date (remove time part)
+    final dateOnly = DateTime(date.year, date.month, date.day);
+    final dateString = dateOnly.toIso8601String().substring(0, 10); // 'YYYY-MM-DD'
+
+    debugPrint("++++++++++++++++++++++ DATE LIKE $dateString%");
+    // Check for existing report on the same date
+    final existing = await db.rawQuery('''
+      SELECT reports.*, stations.name as stationName 
+      FROM reports
+      LEFT JOIN stations ON reports.stationId = stations.id
+      WHERE reports.date LIKE ? AND reports.isDraft = ?
+      ORDER BY reports.date DESC
+      LIMIT 1
+    ''', ['$dateString%', isDraft ? 1 : 0]);
+
+    if(existing.isNotEmpty){
+      debugPrint("STATION NAME IS: ${existing.first["stationName"]} : ID: ${existing.first["stationId"]}");
+      return _mapToReport(existing.first);
+    }
+    return null;
+  }
   // ---------------------- Reports ----------------------
 
   Future<int> insertReport(ReportModel report) async {
@@ -156,22 +181,11 @@ class ReportRepository {
 
     // Get or insert station
     int stationId = await _getOrInsertStation(report.stationName);
-    // Normalize date (remove time part)
-    final dateOnly = DateTime(report.date.year, report.date.month, report.date.day);
-    final dateString = dateOnly.toIso8601String().substring(0, 10); // 'YYYY-MM-DD'
-
-    debugPrint("DATE LIKE $dateString%");
-    // Check for existing report on the same date
-    final existing = await db.query(
-      'reports',
-      where: "date LIKE ? AND isDraft = ?",
-      whereArgs: ['$dateString%', report.isDraft? 1 : 0], // Match any time on the same date
-      limit: 1,
-    );
-
+    
+    final ReportModel? existingReport = await getReportByDate(report.date, isDraft: report.isDraft);
     // If exists, delete it
-    if (existing.isNotEmpty) {
-      final id = existing.first['id'] as int;
+    if (existingReport != null) {
+      final id = existingReport.id as int;
       await db.delete(
         'reports',
         where: 'id = ?',
@@ -276,7 +290,7 @@ class ReportRepository {
 
     return ReportModel(
       id: map['id'],
-      stationName: map['stationName'],
+      stationName: map['stationName'] ?? "",
       date: DateTime.tryParse(map['date']) ?? DateTime.now(),
       beginTime: TimeOfDay(
         hour: int.tryParse(beginParts[0]) ?? 8,

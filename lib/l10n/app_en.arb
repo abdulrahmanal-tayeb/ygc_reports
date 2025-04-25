@@ -70,6 +70,7 @@
   "field_notes": "Notes",
   "field_workerName": "Worker Name",
   "field_representativeName": "Representative Name",
+  "field_tankWeight": "Gas Tank Weight (20L)",
 
 
   "common_create": "Create",

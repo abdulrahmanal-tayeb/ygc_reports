@@ -488,11 +488,11 @@ class _CreateReportFormState extends State<CreateReportForm> {
         )),
         _spaced(_buildField(
           context,
-          "Full Tank Weight (20L)",
+          context.loc.field_tankWeight,
           model.fullTankWeight,
           'fullTankWeight',
           decoration: InputDecoration(
-            labelText: "Full Tank Weight (20L)",
+            labelText: context.loc.field_tankWeight,
           ),
           keyboardType: TextInputType.number,
         )),

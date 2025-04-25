@@ -66,6 +66,7 @@
   "field_notes": "ملاحظات",
   "field_workerName": "اسم عامل المحطة",
   "field_representativeName": "اسم مندوب الشركة",
+  "field_tankWeight": "وزن الغاز الصافي (20 لتر)",
 
   "common_create": "إنشاء",
   "common_addRow": "إضافة قراءه",

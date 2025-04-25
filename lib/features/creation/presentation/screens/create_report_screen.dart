@@ -18,9 +18,7 @@ import 'package:ygc_reports/providers/report_provider.dart';
 import 'package:ygc_reports/widgets/collapsable.dart';
 import 'package:ygc_reports/widgets/floating_actions.dart';
 import 'package:ygc_reports/widgets/focus_text_field.dart';
-import 'package:ygc_reports/widgets/language_switcher.dart';
 import 'package:ygc_reports/widgets/time_input_field.dart';
-import 'package:flutter_gen/gen_l10n/l10n.dart'; // Generated localization file
 
 
 class CreateReportScreen extends StatelessWidget {
@@ -444,7 +442,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
                     padding: const EdgeInsets.symmetric(horizontal: 5),
                     child: Text(
                       context.loc.hint_consumed(pumpRows[index]["total"] ?? 0),
-                      style: TextStyle(fontSize: 8, color: Theme.of(context).hintColor),
+                      style: const TextStyle(fontSize: 8),
                     ),
                   ),
               ],

@@ -9,7 +9,6 @@ class LanguageSwitcher extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localeProvider = Provider.of<LocaleProvider>(context, listen: false);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -30,7 +29,7 @@ class LanguageSwitcher extends StatelessWidget {
             }
           },
           items: context.supportedLocales.map((locale) {
-            final flag = locale.languageCode == 'ar' ? '🇸🇦 العربية' : '🇺🇸 English';
+            final flag = locale.languageCode == 'ar' ? 'العربية' : 'English';
             return DropdownMenuItem(
               value: locale,
               child: Text(

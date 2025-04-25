@@ -4,7 +4,7 @@ import 'package:ygc_reports/core/services/database/report_repository.dart';
 import 'package:ygc_reports/core/utils/formatters.dart';
 import 'package:ygc_reports/core/utils/local_helpers.dart';
 import 'package:ygc_reports/features/reports/picker/presentation/widgets/report_record_tile.dart';
-import 'package:ygc_reports/modals/delete_confirmation/delete_confirmation.dart';
+import 'package:ygc_reports/modals/confirmation/confirmation.dart';
 import 'package:ygc_reports/models/report_model.dart';
 
 class ReportPickerScreen extends StatefulWidget {
@@ -65,83 +65,83 @@ class _ReportPickerScreenState extends State<ReportPickerScreen> {
           final others = allReports.where((r) => !r.isDraft).toList();
 
           return ListView.builder(
-  padding: EdgeInsets.zero,
-  itemCount: 
-      (drafts.isNotEmpty ? 1 + drafts.length : 0) +
-      (others.isNotEmpty ? 1 + others.length : 0),
-  itemBuilder: (context, index) {
-    int currentIndex = 0;
+            padding: EdgeInsets.zero,
+            itemCount: 
+                (drafts.isNotEmpty ? 1 + drafts.length : 0) +
+                (others.isNotEmpty ? 1 + others.length : 0),
+            itemBuilder: (context, index) {
+              int currentIndex = 0;
 
-    // Drafts divider
-    if (drafts.isNotEmpty) {
-      if (index == currentIndex) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: Row(
-            children: [
-              Text(
-                context.loc.draftReports,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(width: 8),
-              const Expanded(child: Divider(thickness: 1)),
-            ],
-          ),
-        );
-      }
-      currentIndex++;
+              // Drafts divider
+              if (drafts.isNotEmpty) {
+                if (index == currentIndex) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    child: Row(
+                      children: [
+                        Text(
+                          context.loc.draftReports,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(width: 8),
+                        const Expanded(child: Divider(thickness: 1)),
+                      ],
+                    ),
+                  );
+                }
+                currentIndex++;
 
-      // Drafts items
-      final draftIndex = index - currentIndex;
-      if (draftIndex >= 0 && draftIndex < drafts.length) {
-        final draft = drafts[draftIndex];
-        final formattedDate = formatDate(draft.date);
-        return ReportListTile(
-          report: draft,
-          formattedDate: formattedDate,
-          onDelete: () => deleteReport(draft),
-          onTap: () => context.pop<ReportModel>(draft),
-        );
-      }
-      currentIndex += drafts.length;
-    }
+                // Drafts items
+                final draftIndex = index - currentIndex;
+                if (draftIndex >= 0 && draftIndex < drafts.length) {
+                  final draft = drafts[draftIndex];
+                  final formattedDate = formatDate(draft.date);
+                  return ReportListTile(
+                    report: draft,
+                    formattedDate: formattedDate,
+                    onDelete: () => deleteReport(draft),
+                    onTap: () => context.pop<ReportModel>(draft),
+                  );
+                }
+                currentIndex += drafts.length;
+              }
 
-    // Submitted Reports divider
-    if (others.isNotEmpty) {
-      if (index == currentIndex) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: Row(
-            children: [
-              Text(
-                context.loc.submittedReports,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(width: 8),
-              const Expanded(child: Divider(thickness: 1)),
-            ],
-          ),
-        );
-      }
-      currentIndex++;
+              // Submitted Reports divider
+              if (others.isNotEmpty) {
+                if (index == currentIndex) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    child: Row(
+                      children: [
+                        Text(
+                          context.loc.submittedReports,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(width: 8),
+                        const Expanded(child: Divider(thickness: 1)),
+                      ],
+                    ),
+                  );
+                }
+                currentIndex++;
 
-      // Others items
-      final reportIndex = index - currentIndex;
-      if (reportIndex >= 0 && reportIndex < others.length) {
-        final report = others[reportIndex];
-        final formattedDate = formatDate(report.date);
-        return ReportListTile(
-          report: report,
-          formattedDate: formattedDate,
-          onDelete: () => deleteReport(report),
-          onTap: () => context.pop<ReportModel>(report),
-        );
-      }
-    }
+                // Others items
+                final reportIndex = index - currentIndex;
+                if (reportIndex >= 0 && reportIndex < others.length) {
+                  final report = others[reportIndex];
+                  final formattedDate = formatDate(report.date);
+                  return ReportListTile(
+                    report: report,
+                    formattedDate: formattedDate,
+                    onDelete: () => deleteReport(report),
+                    onTap: () => context.pop<ReportModel>(report),
+                  );
+                }
+              }
 
-    return const SizedBox(); // fallback
-  },
-);
+              return const SizedBox(); // fallback
+            },
+          );
         },
       ),
     );

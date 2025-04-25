@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ygc_reports/features/creation/presentation/screens/create_report_screen.dart';
-import 'package:ygc_reports/features/home/presentation/screens/home_screen.dart';
 import 'package:ygc_reports/features/reports/picker/presentation/screens/report_picker_screen.dart';
 import 'package:ygc_reports/features/reports/saved/presentation/screens/saved_reports_screen.dart';
 
@@ -30,6 +29,6 @@ final GoRouter appRouter = GoRouter(
   ],
 
   errorBuilder: (context, state) => Scaffold(
-    body: Center(child: Text(state.error.toString())),
+    body: Center(child: Text("Error Occured")),
   ),
 );

@@ -15,10 +15,9 @@ import 'package:ygc_reports/core/utils/files.dart';
 import 'package:ygc_reports/core/utils/formatters.dart';
 import 'package:ygc_reports/core/utils/local_helpers.dart';
 import 'package:ygc_reports/features/creation/presentation/utils/report_printer.dart';
-import 'package:ygc_reports/modals/delete_confirmation/delete_confirmation.dart';
+import 'package:ygc_reports/modals/confirmation/confirmation.dart';
 import 'package:ygc_reports/modals/saved_report_preview/saved_report_preview.dart';
 import 'package:ygc_reports/models/report_model.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:pdf_render/pdf_render.dart' as pdfRender;
 
 Future<void> generateReport({

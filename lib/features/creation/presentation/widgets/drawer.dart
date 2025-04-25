@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:ygc_reports/features/home/presentation/widgets/logo.dart';
+import 'package:ygc_reports/widgets/logo.dart';
 import 'package:ygc_reports/widgets/language_switcher.dart';
 
 class DrawerWidget extends StatelessWidget {

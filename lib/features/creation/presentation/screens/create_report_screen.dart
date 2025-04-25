@@ -451,13 +451,13 @@ class _CreateReportFormState extends State<CreateReportForm> {
             ),
           );
         }),
-        TextButton.icon(
+        ElevatedButton.icon(
           onPressed: () => setState(() {
             pumpRows.add({"start": 0, "end": 0, "total": 0});
-          }),
-          icon: const Icon(Icons.add),
+          }), 
+          icon: Icon(Icons.add, color: Theme.of(context).scaffoldBackgroundColor),
           label: Text(context.loc.common_addRow),
-        ),
+        )
       ],
     );
   }
@@ -564,7 +564,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
             )
           ),
           const SizedBox(height: 10,),
-          ElevatedButton(
+          ElevatedButton.icon(
             onPressed: () async {
               FocusScope.of(context).unfocus();
               try {
@@ -574,7 +574,8 @@ class _CreateReportFormState extends State<CreateReportForm> {
                 debugPrint("Couldn't get the signature: $e");
               }
             }, 
-            child:  Text(context.loc.common_sign)
+            icon: Icon(Icons.mode_edit_outline_rounded, color: Theme.of(context).scaffoldBackgroundColor),
+            label:  Text(context.loc.common_sign)
           )
       ],
     );

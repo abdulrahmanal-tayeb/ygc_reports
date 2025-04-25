@@ -160,11 +160,12 @@ class ReportRepository {
     final dateOnly = DateTime(report.date.year, report.date.month, report.date.day);
     final dateString = dateOnly.toIso8601String().substring(0, 10); // 'YYYY-MM-DD'
 
+    debugPrint("DATE LIKE $dateString%");
     // Check for existing report on the same date
     final existing = await db.query(
       'reports',
       where: "date LIKE ? AND isDraft = ?",
-      whereArgs: ['$dateString%', report.isDraft? '1' : '0'], // Match any time on the same date
+      whereArgs: ['$dateString%', report.isDraft? 1 : 0], // Match any time on the same date
       limit: 1,
     );
 
@@ -178,6 +179,7 @@ class ReportRepository {
       );
     }
 
+    report.id = null; // To prevent overwriting the previous report if the user has prefilled from.
     // Insert the new report
     return await db.insert(
       'reports',

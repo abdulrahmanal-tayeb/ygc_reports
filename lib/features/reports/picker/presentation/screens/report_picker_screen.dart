@@ -64,86 +64,84 @@ class _ReportPickerScreenState extends State<ReportPickerScreen> {
           final drafts = allReports.where((r) => r.isDraft).toList();
           final others = allReports.where((r) => !r.isDraft).toList();
 
-          return NestedScrollView(
-            headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-              return [
-                if (drafts.isNotEmpty)
-                  SliverAppBar(
-                    backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                    expandedHeight: 50,
-                    pinned: false,
-                    floating: false,
-                    title: Text(context.loc.pickReportScreenTitle),
-                    flexibleSpace: const SizedBox.shrink(), // no content
-                  ),
-              ];
-            },
-            body: ListView.builder(
-              padding: EdgeInsets.zero,
-              itemCount: 1 + drafts.length + (drafts.isNotEmpty && others.isNotEmpty ? 1 : 0) + others.length,
-              itemBuilder: (context, index) {
-                // Drafts divider
-                if (index == 0) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    child: Row(
-                      children: [
-                        Text(
-                          context.loc.draftReports,
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(width: 8),
-                        Expanded(child: Divider(thickness: 1)),
-                      ],
-                    ),
-                  );
-                }
+          return ListView.builder(
+  padding: EdgeInsets.zero,
+  itemCount: 
+      (drafts.isNotEmpty ? 1 + drafts.length : 0) +
+      (others.isNotEmpty ? 1 + others.length : 0),
+  itemBuilder: (context, index) {
+    int currentIndex = 0;
 
-                // Draft items
-                final draftStart = 1;
-                final draftEnd = draftStart + drafts.length;
-                if (index >= draftStart && index < draftEnd) {
-                  final draft = drafts[index - draftStart];
-                  final formattedDate = formatDate(draft.date);
-                  return ReportListTile(
-                    report: draft,
-                    formattedDate: formattedDate,
-                    onDelete: () => deleteReport(draft),
-                    onTap: () => context.pop<ReportModel>(draft),
-                  );
-                }
+    // Drafts divider
+    if (drafts.isNotEmpty) {
+      if (index == currentIndex) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              Text(
+                context.loc.draftReports,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(width: 8),
+              const Expanded(child: Divider(thickness: 1)),
+            ],
+          ),
+        );
+      }
+      currentIndex++;
 
-                // Submitted Reports divider
-                final dividerIndex = draftEnd;
-                if (drafts.isNotEmpty && others.isNotEmpty && index == dividerIndex) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    child: Row(
-                      children: [
-                        Text(
-                          context.loc.submittedReports,
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(width: 8),
-                        Expanded(child: Divider(thickness: 1)),
-                      ],
-                    ),
-                  );
-                }
+      // Drafts items
+      final draftIndex = index - currentIndex;
+      if (draftIndex >= 0 && draftIndex < drafts.length) {
+        final draft = drafts[draftIndex];
+        final formattedDate = formatDate(draft.date);
+        return ReportListTile(
+          report: draft,
+          formattedDate: formattedDate,
+          onDelete: () => deleteReport(draft),
+          onTap: () => context.pop<ReportModel>(draft),
+        );
+      }
+      currentIndex += drafts.length;
+    }
 
-                // Others section
-                final reportIndex = index - draftEnd - (drafts.isNotEmpty && others.isNotEmpty ? 1 : 0);
-                final report = others[reportIndex];
-                final formattedDate = formatDate(report.date);
-                return ReportListTile(
-                  report: report,
-                  formattedDate: formattedDate,
-                  onDelete: () => deleteReport(report),
-                  onTap: () => context.pop<ReportModel>(report),
-                );
-              },
-            ),
-          );
+    // Submitted Reports divider
+    if (others.isNotEmpty) {
+      if (index == currentIndex) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              Text(
+                context.loc.submittedReports,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(width: 8),
+              const Expanded(child: Divider(thickness: 1)),
+            ],
+          ),
+        );
+      }
+      currentIndex++;
+
+      // Others items
+      final reportIndex = index - currentIndex;
+      if (reportIndex >= 0 && reportIndex < others.length) {
+        final report = others[reportIndex];
+        final formattedDate = formatDate(report.date);
+        return ReportListTile(
+          report: report,
+          formattedDate: formattedDate,
+          onDelete: () => deleteReport(report),
+          onTap: () => context.pop<ReportModel>(report),
+        );
+      }
+    }
+
+    return const SizedBox(); // fallback
+  },
+);
         },
       ),
     );

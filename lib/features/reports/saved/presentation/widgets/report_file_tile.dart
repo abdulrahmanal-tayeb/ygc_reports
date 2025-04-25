@@ -94,7 +94,7 @@ class ReportFileTile extends StatelessWidget {
                   children: [
                     Text(
                       file.name,
-                      maxLines: 1,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         fontWeight: FontWeight.w600,

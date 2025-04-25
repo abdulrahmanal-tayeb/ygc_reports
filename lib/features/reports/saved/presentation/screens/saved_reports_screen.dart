@@ -114,7 +114,7 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No saved reports found.'));
+            return Center(child: Text(context.loc.message_noReports));
           } else {
             // Update local files list
             _reportFiles = snapshot.data!;

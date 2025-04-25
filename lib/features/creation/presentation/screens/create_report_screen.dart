@@ -506,6 +506,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: buildSection(
+            colored: false,
             title: context.loc.section_stationWorker,
             children: [
               _spaced(_buildField(
@@ -522,6 +523,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: buildSection(
+            colored: false,
             title: context.loc.section_representative,
             children: [
               _spaced(_buildField(
@@ -581,9 +583,15 @@ class _CreateReportFormState extends State<CreateReportForm> {
     );
   }
 
-  Widget buildSection({required String title, required List<Widget> children, bool initialCollapsed = true}) {
+  Widget buildSection({
+    required String title, 
+    required List<Widget> children, 
+    bool initialCollapsed = true,
+    bool colored = true
+  }) {
     return Collapsable(
       name: title,
+      colored: colored,
       initialCollapsed: initialCollapsed,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

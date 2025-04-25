@@ -4,10 +4,12 @@ class Collapsable extends StatefulWidget{
   final String name;
   final Widget child;
   final bool initialCollapsed;
+  final bool colored;
   const Collapsable({
     super.key,
     required this.child,
     this.initialCollapsed = true,
+    this.colored = true,
     this.name = "Section",
   });
 
@@ -75,13 +77,23 @@ class _CollapsableState extends State<Collapsable> with SingleTickerProviderStat
           ),
         ),
         // Animated collapse/expand effect while keeping PlaylistTiles mounted.
-        ClipRect(
-          child: SizeTransition(
-            sizeFactor: _sizeAnimation,
-            axisAlignment: -1.0, // Aligns the animation to the top edge.
-            child: widget.child,
+        Container(
+          // If colored, it means that the content should have padding to leave space between it and the borders of the color.
+          padding: EdgeInsets.all(widget.colored? 10 : 0), 
+
+          decoration: BoxDecoration(
+          // If not expanded, then we should not render the color. 
+          color: widget.colored && _isExpanded? Theme.of(context).colorScheme.primary.withOpacity(0.02) : Colors.transparent,
+            borderRadius: BorderRadius.circular(20)
           ),
-        ),
+          child: ClipRect(
+            child: SizeTransition(
+              sizeFactor: _sizeAnimation,
+              axisAlignment: -1.0, // Aligns the animation to the top edge.
+              child: widget.child,
+            ),
+          ),
+        )
       ],
     );
   }

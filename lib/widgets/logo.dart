@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
-enum LogoType {
-  amtcode,
-  ygcReports
-}
+import 'package:ygc_reports/core/constants/types.dart';
 
 class Logo extends StatelessWidget {
   final double size;

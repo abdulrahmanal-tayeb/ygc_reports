@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// Collapsable container
 class Collapsable extends StatefulWidget{
   final String name;
   final Widget child;

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:ygc_reports/core/constants/report_type.dart';
+import 'package:ygc_reports/core/constants/types.dart';
 import 'package:ygc_reports/core/services/database/report_repository.dart';
 import 'package:ygc_reports/core/utils/local_helpers.dart';
 import 'package:ygc_reports/core/utils/validators.dart';
@@ -21,13 +21,19 @@ import 'package:ygc_reports/widgets/focus_text_field.dart';
 import 'package:ygc_reports/widgets/time_input_field.dart';
 
 
+/// The **HomeScreen**. This is responsible for generating the report.
 class CreateReportScreen extends StatelessWidget {
   const CreateReportScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
+
+    // Here, we are only providing that provider to its children, because it might not
+    // be in need by other screens.
     return ChangeNotifierProvider(
       create: (_) => ReportProvider(),
       child: PopScope(
+        // Closes the keyboard when back-navigated.
         canPop: !FocusScope.of(context).hasFocus,
         onPopInvokedWithResult: (popped, object){
           FocusScope.of(context).unfocus();
@@ -52,12 +58,18 @@ class CreateReportForm extends StatefulWidget {
 
 
 class _CreateReportFormState extends State<CreateReportForm> {
+  /// Defines the space between each input field and the other.
   final double spaceBetweenInputs = 20;
+
+  /// Flag whether the report is prefilled from a previous report.
   bool prefilledReport = false;
+
+  /// The pump readings 
   List<Map<String, int>> pumpRows = [
     {"start": 0, "end": 0, "total": 0}
   ];
 
+  /// Updates the total tank load by calculated the [tankLoad] and the [inboundAmount] when either of them changes.
   void updateTotalTankLoad(ReportProvider provider){
     final ReportModel model = provider.model;
     final totalLoad = model.tankLoad + model.inboundAmount;
@@ -65,6 +77,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
     provider.notify();
   }
 
+  /// Updates the reading row, checking if there is any error.
   void updateReadingRow(String key, int index, int reading){
     final Map<String, int> row = pumpRows[index];
     row[key] = reading;
@@ -83,6 +96,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
     setState((){});
   }
 
+  /// Updates the fields that depends on the [tanksForPeople].
   void updateNotesReadings(ReportProvider provider){
     final ReportModel model = provider.model;
     model.tanksForPeople = (model.filledForPeople / 20).round();
@@ -90,11 +104,11 @@ class _CreateReportFormState extends State<CreateReportForm> {
     provider.notify();
   }
 
+  /// Updates all fields that depend on other fields.
   ReportModel? updateDependantFields(ReportProvider provider) {
     final ReportModel model = provider.model;
     model.pumpsReadings = pumpRows;
     model.totalConsumed = model.pumpsReadings!.fold(0, (int sum, Map<String, int> reading) => sum + reading["total"]!);
-    debugPrint("MODEL TOTAL BROOOOOOOOOOOOO: ${model.totalConsumed}");
     model.remainingLoad = model.totalLoad - model.totalConsumed;
     if(model.totalConsumed > model.totalLoad){
       model.overflow = model.totalConsumed - model.totalLoad;
@@ -103,6 +117,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
     return model;
   }
 
+  /// This is called when the report is to be generated.
   void _generateReport(ReportProvider provider) async {
     if(pumpRows.isEmpty) return;
     final recentModel = updateDependantFields(provider);
@@ -110,47 +125,14 @@ class _CreateReportFormState extends State<CreateReportForm> {
       return;
     }
 
-    showShareTypeBottomSheet(
+    await showShareTypeBottomSheet(
       context: context,
       onSelected: (ReportType selectedType) async => await generateReport(context: context, model: recentModel, fileType: selectedType),
     );
   }
 
-  String? validateNumber(String? value, {bool isRequired = false}) {
-    if (isRequired && (value == null || value.isEmpty)) {
-      return context.loc.error_required;
-    }
 
-    if(value == null) return null;
-
-    final isNumeric = RegExp(r'^\d+$').hasMatch(value);
-    if (!isNumeric) {
-      return context.loc.error_onlyNumbers;
-    }
-
-    return null; // ✅ valid
-  }
-
-  bool validate(ReportModel model) {
-    if(model.pumpsReadings == null || model.pumpsReadings!.isEmpty){
-      model.pumpsReadings = pumpRows;
-    }
-
-    debugPrint("${model.pumpsReadings }");
-    if (
-      model.stationName.trim().length <= 1
-      ||
-      model.workerName.trim().length <= 1
-      ||
-      model.representativeName.trim().length <= 1
-      
-    ) {
-      return false;
-    }
-    
-    return true;
-  }
-
+  // This is used to update the prefill status after prefilling the report from existing report.
   void prefillReport(
     List<Map<String, int>>? pumpReadings
   )  {
@@ -184,6 +166,8 @@ class _CreateReportFormState extends State<CreateReportForm> {
         body: SafeArea(
           child: Stack(
             children: [
+              /// Displays the bottom widgets, which include the **button for creating the report**
+              /// the **checkbox for specifying whether the report is for emptying or not**
               Column(
                 spacing: 5,
                 children: [
@@ -200,6 +184,8 @@ class _CreateReportFormState extends State<CreateReportForm> {
                   )
                 ]
               ),
+
+              /// Displays the floating action button.
               Positioned(
                 bottom: 10,
                 right: isRtl? null : 10,
@@ -216,21 +202,24 @@ class _CreateReportFormState extends State<CreateReportForm> {
             mainAxisSize: MainAxisSize.min,
             children: [
               if(prefilledReport)
-                Row(
-                  spacing: 5,
-                  children: [
-                    const Icon(Icons.auto_awesome, size: 10),
-                    Text(
-                      context.loc.hint_prefilledReport,
-                      style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor),
-                    )
-                  ],
-                ),
+              /// Displays the text to show whether the report is prefilled or not. 
+              Row(
+                spacing: 5,
+                children: [
+                  const Icon(Icons.auto_awesome, size: 10),
+                  Text(
+                    context.loc.hint_prefilledReport,
+                    style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor),
+                  )
+                ],
+              ),
               const SizedBox(height: 5),
+
+              /// The main button, the one that will trigger the generation.
               SizedBox(
                 width: MediaQuery.of(context).size.width,
                 child: ElevatedButton(
-                  onPressed: validate(provider.model)? () => _generateReport(provider) : null, 
+                  onPressed: Validators.validate(provider.model, pumpRows)? () => _generateReport(provider) : null, 
                   child: Text(context.loc.common_create)
                 )
               )
@@ -240,6 +229,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
       );
   }
 
+  /// Builds the floating action button
   Widget _buildFloatingButton(BuildContext context, ReportProvider provider){
     return FloatingActions<Map<String, dynamic>>(
       options: [
@@ -286,6 +276,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
     );
   }
 
+  /// Builds the entire form.
   Widget _buildForm(BuildContext context, ReportProvider provider) {
     final ReportModel model = provider.model;
 
@@ -303,7 +294,6 @@ class _CreateReportFormState extends State<CreateReportForm> {
     );
   }
 
-  // --- Metadata Section ---
   Widget _buildMetadataSection(BuildContext context, ReportProvider provider, ReportModel model) {
     return buildSection(
       initialCollapsed: false,
@@ -331,6 +321,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
     );
   }
 
+
   Widget _buildDatePickerField(BuildContext context, ReportProvider provider, ReportModel model) {
     return GestureDetector(
       onTap: () async {
@@ -353,7 +344,6 @@ class _CreateReportFormState extends State<CreateReportForm> {
     );
   }
 
-  // --- Station Status Section --- 
   Widget _buildStationStatusSection(BuildContext context, ReportProvider provider, ReportModel model) {
     return buildSection(
       title: context.loc.section_stationStatus,
@@ -386,7 +376,6 @@ class _CreateReportFormState extends State<CreateReportForm> {
     );
   }
 
-  // --- Pump Readings Section ---
   Widget _buildPumpReadingsSection(BuildContext context, ReportProvider provider, ReportModel model) {
     return buildSection(
       title: context.loc.section_pumpReadings,
@@ -405,7 +394,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
                         decoration: InputDecoration(labelText: context.loc.field_startReading),
                         initialValue: pumpRows[index]["start"].toString(),
                         onDebouncedChanged: (val) => updateReadingRow("start", index, int.tryParse(val) ?? 0),
-                        validator: (val) => validateNumber(val, isRequired: true),
+                        validator: (val) => Validators.validateNumber(context, val, isRequired: true),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -414,7 +403,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
                         decoration: InputDecoration(labelText: context.loc.field_endReading),
                         initialValue: pumpRows[index]["end"].toString(),
                         onDebouncedChanged: (val) => updateReadingRow("end", index, int.tryParse(val) ?? 0),
-                        validator: (val) => validateNumber(val, isRequired: true),
+                        validator: (val) => Validators.validateNumber(context, val, isRequired: true),
                       ),
                     ),
                     const SizedBox(width: 6),
@@ -460,7 +449,6 @@ class _CreateReportFormState extends State<CreateReportForm> {
     );
   }
 
-  // --- Notes Section ---
   Widget _buildNotesSection(BuildContext context, ReportProvider provider, ReportModel model) {
     debugPrint("MOOOOOOOOOODEL: ${model.filledForPeople} : ${model.notes}");
     return buildSection(
@@ -506,7 +494,6 @@ class _CreateReportFormState extends State<CreateReportForm> {
     );
   }
 
-  // --- Workers Section ---
   Widget _buildWorkersSection(BuildContext context, ReportProvider provider, ReportModel model) {
     return buildSection(
       title: context.loc.section_workers,
@@ -548,12 +535,13 @@ class _CreateReportFormState extends State<CreateReportForm> {
     );
   }
 
-  // --- Helper Widget ---
+  /// Adds the necessary padding to all of the fields.
   Widget _spaced(Widget child) => Padding(
     padding: const EdgeInsets.symmetric(vertical: 8),
     child: child,
   );
 
+  /// Builds the signature sheet.
   Widget _buildSignature(String employee, ReportProvider provider){
     final ReportModel model = provider.model;
     final Uint8List? signature = employee == "worker"? model.workerSignature : model.representativeSignature;
@@ -591,6 +579,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
     );
   }
 
+  /// Builds a collapsable section.
   Widget buildSection({
     required String title, 
     required List<Widget> children, 
@@ -610,6 +599,7 @@ class _CreateReportFormState extends State<CreateReportForm> {
     );
   }
 
+  /// Builds the text field, which has additional functionalities such as [onDebouncedChanged]
   Widget _buildField<T>(
     BuildContext context,
     String label, 

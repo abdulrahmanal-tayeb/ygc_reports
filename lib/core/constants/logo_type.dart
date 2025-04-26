@@ -1,0 +1,4 @@
+enum LogoType {
+  amtcode,
+  ygcReports
+}

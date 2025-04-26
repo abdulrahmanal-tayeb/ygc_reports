@@ -8,8 +8,6 @@ import 'package:ygc_reports/config/theme/dark_theme.dart';
 import 'package:ygc_reports/config/theme/light_theme.dart';
 import 'package:ygc_reports/providers/locale_provider.dart';
 
-import 'providers/ygc_provider.dart';
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
@@ -19,7 +17,6 @@ void main() async {
       runApp(
         MultiProvider(
           providers: [
-            ChangeNotifierProvider(create: (_) => YgcProvider()),
             ChangeNotifierProvider(create: (_) => LocaleProvider())
           ],
           child: const YGCReports(),
@@ -50,7 +47,7 @@ class YGCReports extends StatelessWidget {
       debugShowCheckedModeBanner: false,
 
       locale: localeProvider.locale,
-      // 🔤 Localization settings
+      // Localization settings
       localizationsDelegates: const [
         AppLocalizations.delegate, // Generated class
         GlobalMaterialLocalizations.delegate,

@@ -7,10 +7,6 @@ import '../models/report_model.dart';
 class ReportProvider extends ChangeNotifier {
   ReportModel model = ReportModel();
 
-  void setStationName(String value) {
-    model.stationName = value;
-    notifyListeners();
-  }
 
   void setDate(DateTime value) {
     model.date = value;
@@ -82,7 +78,6 @@ class ReportProvider extends ChangeNotifier {
   }
 
   void notify(){
-    debugPrint("HELLO +++++++++++++++++++++++++++++++++++++++++++++++++++");
     notifyListeners();
   }
 

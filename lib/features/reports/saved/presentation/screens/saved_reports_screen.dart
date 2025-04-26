@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart' as path;
 import 'package:share_plus/share_plus.dart';
-import 'package:ygc_reports/core/constants/report_type.dart';
+import 'package:ygc_reports/core/constants/types.dart';
 import 'package:ygc_reports/core/utils/files.dart';
 import 'package:ygc_reports/core/utils/local_helpers.dart';
 import 'package:ygc_reports/features/reports/saved/presentation/widgets/report_file_tile.dart';
@@ -27,6 +27,7 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
     _reportFilesFuture = _loadReportFiles();
   }
 
+  /// This loads the generated files from the device's storage directly ***(Not from the DB)***
   Future<List<ReportFile>> _loadReportFiles() async {
     final pdfDir = await getFilePath<Directory>(ReportType.pdf);
     final imageDir = await getFilePath<Directory>(ReportType.image);

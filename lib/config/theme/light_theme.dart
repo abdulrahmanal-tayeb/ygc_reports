@@ -4,6 +4,7 @@ const Color whiteMain = Colors.white;
 const Color blackText = Color(0xFF1C1C1C);
 const Color softGray = Color(0xFFAAAAAA);
 
+/// Defines the Light Theme in the entire app.
 final ThemeData lightTheme = ThemeData(
   fontFamily: 'Cairo',
   useMaterial3: true,

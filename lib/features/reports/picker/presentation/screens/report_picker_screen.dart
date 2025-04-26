@@ -60,6 +60,7 @@ class _ReportPickerScreenState extends State<ReportPickerScreen> {
             return Center(child: Text(context.loc.message_noReports));
           }
 
+          // Here I am separating the drafts from the actual, sumbitted reports.
           final allReports = snapshot.data!;
           final drafts = allReports.where((r) => r.isDraft).toList();
           final others = allReports.where((r) => !r.isDraft).toList();

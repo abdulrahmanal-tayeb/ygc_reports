@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:ygc_reports/core/utils/local_helpers.dart';
 
+// Floating actions
 class FloatingActions<T> extends StatelessWidget {
   final List<T> options;
   final SpeedDialChild Function(T item) itemBuilder;

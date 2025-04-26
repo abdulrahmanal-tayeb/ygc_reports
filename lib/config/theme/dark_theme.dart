@@ -4,6 +4,7 @@ const Color darkBackground = Color(0xFF121212);
 const Color pureWhite = Colors.white;
 const Color dimWhite = Color(0xFFDDDDDD);
 
+/// Defines the Dark Themes in the entire app.
 final ThemeData darkTheme = ThemeData(
   fontFamily: 'Cairo',
   useMaterial3: true,

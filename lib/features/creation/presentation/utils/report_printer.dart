@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:ygc_reports/core/constants/report_type.dart';
+import 'package:ygc_reports/core/constants/types.dart';
 import 'package:ygc_reports/core/utils/local_helpers.dart';
 import 'package:ygc_reports/models/report_model.dart';
 import "package:ygc_reports/core/utils/formatters.dart";
 
+/// This is responsible for printing the texts on the report's template.
 class ReportPrinter {
   final pw.Font font;
   final ReportModel data;
@@ -205,7 +206,6 @@ class ReportPrinter {
   List<pw.Widget> _pumpReads() {
     final double y = 318;
     final double spacing = 13;
-    debugPrint("+++++++++++++++++++++++++++++++++++++++++++ ${data.totalConsumed}");
     return [
       ...data.pumpsReadings!.asMap().entries.map((entry) {
         final index = entry.key;

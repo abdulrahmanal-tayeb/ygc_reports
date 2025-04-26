@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
-import 'package:ygc_reports/core/constants/report_type.dart';
+import 'package:ygc_reports/core/constants/types.dart';
 import 'package:ygc_reports/modals/share_type_sheet/utils.dart';
 
 Future<void> showShareTypeBottomSheet({

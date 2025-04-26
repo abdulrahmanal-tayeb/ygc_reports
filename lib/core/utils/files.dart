@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
-import 'package:ygc_reports/core/constants/report_type.dart';
+import 'package:ygc_reports/core/constants/types.dart';
 
+
+/// Deletes a file from the given [path].
 Future<void> deleteReportFromPath(String path) async {
   try {
     final file = File(path);
@@ -17,6 +19,15 @@ Future<void> deleteReportFromPath(String path) async {
 }
 
 
+/// Returns the file path it is to be saved to given the [reportType] which might be as follows:
+/// 
+/// - `images` => `baseDir/YGC Reports/images`
+/// - `pdf` => `baseDir/YGC Reports/pdf`
+/// 
+/// **Where `baseDir` differs from OS to OS, on ***Android***, its something like `/storage/0/emulated/`
+/// 
+/// By default this returns a **String**, but if you want it to return a [Directory], just specify that as the 
+/// generic type.
 Future<T?> getFilePath<T>(ReportType reportType) async {
   final baseDir = await getExternalDirectory(
     reportType == ReportType.pdf ? "documents" : "images",
@@ -39,6 +50,8 @@ Future<T?> getFilePath<T>(ReportType reportType) async {
 }
 
 
+
+/// Returns the base directory in which the app's folder will be created.
 Future<Directory?> getExternalDirectory(String type) async {
   if (Platform.isAndroid) {
     final base = await getExternalStorageDirectory(); // e.g., /storage/emulated/0/Android/data/<package>/files

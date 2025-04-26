@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+/// Defines the report model, which is to be converted to from the json format coming from the DB.
 class ReportModel {
   String stationName;
   DateTime date;

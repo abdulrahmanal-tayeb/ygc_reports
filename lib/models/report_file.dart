@@ -1,4 +1,4 @@
-import 'package:ygc_reports/core/constants/report_type.dart';
+import 'package:ygc_reports/core/constants/types.dart';
 
 class ReportFile {
   final String name;

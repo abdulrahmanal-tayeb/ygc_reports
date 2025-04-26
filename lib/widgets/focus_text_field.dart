@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 
+
+/// Adds additional functionalities on the regular TextFormField.
 class FocusTextField extends StatefulWidget {
   final void Function()? onFocus;
   final void Function()? onBlur;

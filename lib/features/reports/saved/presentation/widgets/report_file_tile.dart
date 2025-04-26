@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:ygc_reports/core/constants/report_type.dart';
+import 'package:ygc_reports/core/constants/types.dart';
 import 'package:ygc_reports/core/utils/local_helpers.dart';
 import 'package:ygc_reports/models/report_file.dart';
 import 'package:ygc_reports/providers/locale_provider.dart';

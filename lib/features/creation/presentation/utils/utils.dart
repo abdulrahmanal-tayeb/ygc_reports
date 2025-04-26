@@ -9,7 +9,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:ygc_reports/core/constants/report_type.dart';
+import 'package:ygc_reports/core/constants/types.dart';
 import 'package:ygc_reports/core/services/database/report_repository.dart';
 import 'package:ygc_reports/core/utils/files.dart';
 import 'package:ygc_reports/core/utils/formatters.dart';
@@ -20,6 +20,7 @@ import 'package:ygc_reports/modals/saved_report_preview/saved_report_preview.dar
 import 'package:ygc_reports/models/report_model.dart';
 import 'package:pdf_render/pdf_render.dart' as pdfRender;
 
+/// Generates the report and handle all the steps along the way.
 Future<void> generateReport({
   required BuildContext context,
   required ReportModel model,
@@ -39,7 +40,6 @@ Future<void> generateReport({
 
     final ReportModel? previousReport = await reportRepository.getReportByDate(model.date.subtract(const Duration(days: 1)) );
 
-    debugPrint("BROOOOOOOOOOO IS THE FUCKING THING IS: ${previousReport}");
     // If its the report for the next day, calculate the increase the total consumed liters.
     if(previousReport != null && previousReport.stationName == model.stationName){
       model.litersDifference = model.totalConsumed - previousReport.totalConsumed;
@@ -91,6 +91,7 @@ Future<void> generateReport({
   }
 }
 
+/// Takes care of saving the pdf.
 Future<void> saveAndSharePdf(BuildContext context, Uint8List pdfBytes, String filename, {required ReportModel model}) async {
   // Get the internal storage directory (application documents directory)
 
@@ -120,12 +121,12 @@ Future<void> saveAndSharePdf(BuildContext context, Uint8List pdfBytes, String fi
     );
 
     if(wasDismissed || !shouldSave){
-      debugPrint("DELETEEEEEEEEEEEEEEEEEED");
       file.delete();
     }
   }
 }
 
+/// Takes care of saving the report as an image.
 Future<void> saveAndShareImage(BuildContext context, Uint8List pdfBytes, String filename, {required ReportModel model}) async {
   String? path = await getFilePath(ReportType.image);
   if (path != null) {
@@ -157,6 +158,7 @@ Future<void> saveAndShareImage(BuildContext context, Uint8List pdfBytes, String 
   }
 }
 
+/// Outputs the additional notes when the report is an "Emptying report"
 void emptyingReport(ReportModel model){
   if(model.remainingLoad == 0) return; // because it is already correct, and there is no overflow nor underflow.
 

@@ -4,6 +4,10 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:ygc_reports/models/report_model.dart';
 
+
+/// Defines all business logic related to **databases** which might include
+/// methods that is needed and are being used, or methods that are useful
+/// and are **expected to be used in the future**.
 class ReportRepository {
   static final ReportRepository _instance = ReportRepository._internal();
   factory ReportRepository() => _instance;
@@ -11,12 +15,14 @@ class ReportRepository {
 
   Database? _db;
 
+  /// Returns the database instance.
   Future<Database> get database async {
     if (_db != null) return _db!;
     _db = await _initDatabase();
     return _db!;
   }
 
+  /// Initializes the database when the app launches.
   Future<Database> _initDatabase() async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, 'reports.db');
@@ -28,6 +34,7 @@ class ReportRepository {
     );
   }
 
+  /// Create the database tables.
   Future<void> _createTables(Database db, int version) async {
     await db.execute('''
       CREATE TABLE stations (
@@ -69,6 +76,7 @@ class ReportRepository {
     ''');
   }
 
+  /// Checks if a report exist on a given [date]
   Future<bool> reportExistsOnDate(DateTime date) async {
     final db = await database;
 
@@ -86,6 +94,7 @@ class ReportRepository {
     return result.isNotEmpty;
   }
 
+  /// Returns the latest [ReportModel] saved.
   Future<ReportModel> latestReport() async {
     final db = await database;
     final result = await db.rawQuery('''
@@ -99,8 +108,10 @@ class ReportRepository {
     return _mapToReport(result.first);
   }
 
+
   // ---------------------- Stations ----------------------
 
+  /// Inserts a station, many features are expected to be used in the future.
   Future<int> insertStation(String name, {String? address, String? area}) async {
     final db = await database;
     return await db.insert(
@@ -114,6 +125,7 @@ class ReportRepository {
     );
   }
 
+  /// Returns a station given its [name]
   Future<Map<String, dynamic>?> getStationByName(String name) async {
     final db = await database;
     final result = await db.query(
@@ -125,11 +137,13 @@ class ReportRepository {
     return result.isNotEmpty ? result.first : null;
   }
 
+  /// Returns all stations in the database.
   Future<List<Map<String, dynamic>>> getAllStations() async {
     final db = await database;
     return await db.query('stations');
   }
 
+  /// Updates a station ;)
   Future<int> updateStation(int id, String name, {String? address, String? area}) async {
     final db = await database;
     return await db.update(
@@ -140,6 +154,7 @@ class ReportRepository {
     );
   }
 
+  /// Deletes a station :/
   Future<int> deleteStation(int id) async {
     final db = await database;
     return await db.delete(
@@ -150,6 +165,7 @@ class ReportRepository {
   }
 
 
+  /// Returns a reprot given its [date], and an optional [isDraft]
   Future<ReportModel?> getReportByDate(DateTime date, {bool isDraft = false}) async {
     final db = await database;
 
@@ -157,7 +173,6 @@ class ReportRepository {
     final dateOnly = DateTime(date.year, date.month, date.day);
     final dateString = dateOnly.toIso8601String().substring(0, 10); // 'YYYY-MM-DD'
 
-    debugPrint("++++++++++++++++++++++ DATE LIKE $dateString%");
     // Check for existing report on the same date
     final existing = await db.rawQuery('''
       SELECT reports.*, stations.name as stationName 
@@ -174,8 +189,11 @@ class ReportRepository {
     }
     return null;
   }
+
   // ---------------------- Reports ----------------------
 
+  /// Inserts a report given its [ReportModel], and returns its ID.
+  /// ***This will overwrite the report with the same date***
   Future<int> insertReport(ReportModel report) async {
     final db = await database;
 
@@ -203,6 +221,7 @@ class ReportRepository {
   }
   
 
+  /// If the station was not found, it inserts it
   Future<int> _getOrInsertStation(String name) async {
     final existing = await getStationByName(name);
     if (existing != null) return existing['id'];
@@ -210,6 +229,7 @@ class ReportRepository {
   }
 
 
+  /// Returns the last 30 reports saved in the database.
   Future<List<ReportModel>> getAllReports({bool drafts = false, bool returnAll = true}) async {
     final db = await database;
 
@@ -227,6 +247,7 @@ class ReportRepository {
     return reports;
   }
 
+  /// Updates a report ;/
   Future<int> updateReport(int id, ReportModel report) async {
     final db = await database;
     int stationId = await _getOrInsertStation(report.stationName);
@@ -238,6 +259,8 @@ class ReportRepository {
     );
   }
 
+
+  /// Deletes a report :/
   Future<int> deleteReport(int id) async {
     final db = await database;
     return await db.delete(
@@ -247,6 +270,7 @@ class ReportRepository {
     );
   }
 
+  /// Deletes all reports :/
   Future<void> deleteReports() async {
     final db = await database;
     await db.delete(
@@ -329,4 +353,5 @@ class ReportRepository {
 }
 
 
+/// Here we initialize the database globally only once, and access it from anywhere.
 ReportRepository reportRepository = ReportRepository();

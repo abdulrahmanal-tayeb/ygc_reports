@@ -341,14 +341,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
-  mobile_scanner:
-    dependency: "direct main"
-    description:
-      name: mobile_scanner
-      sha256: "9cb9e371ee9b5b548714f9ab5fd33b530d799745c83d5729ecd1e8ab2935dbd1"
-      url: "https://pub.dev"
-    source: hosted
-    version: "6.0.7"
   nested:
     dependency: transitive
     description:
@@ -437,14 +429,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.11.3"
-  pdf_image_renderer:
-    dependency: "direct main"
-    description:
-      name: pdf_image_renderer
-      sha256: "0ec76118b14663f17f9b6a8c29ec59cb1b82e466a3c16fbb2ed9f1b613fc41b7"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.1"
   pdf_render:
     dependency: "direct main"
     description:
@@ -581,14 +565,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.2"
-  screenshot:
-    dependency: "direct main"
-    description:
-      name: screenshot
-      sha256: "63817697a7835e6ce82add4228e15d233b74d42975c143ad8cfe07009fab866b"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.0"
   share_plus:
     dependency: "direct main"
     description:

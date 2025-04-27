@@ -12,7 +12,7 @@
 .private/
 .swiftpm/
 migrate_working_dir/
-
+screenshots/raw/
 # IntelliJ related
 *.iml
 *.ipr
